@@ -1,11 +1,18 @@
 
 import { useState, useEffect } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { MarketOverview } from '@/components/trading/MarketOverview';
 import { TradingChart } from '@/components/trading/TradingChart';
 import { BotManager } from '@/components/bots/BotManager';
 import { Portfolio } from '@/components/portfolio/Portfolio';
+import { RealTimePortfolio } from '@/components/portfolio/RealTimePortfolio';
+import { YieldFarmingCalculator } from '@/components/defi/YieldFarmingCalculator';
+import { PriceAlertSystem } from '@/components/alerts/PriceAlertSystem';
+import { NFTCollectionManager } from '@/components/nft/NFTCollectionManager';
+import { AdvancedTradingAnalytics } from '@/components/analytics/AdvancedTradingAnalytics';
 import { NewsTicker } from '@/components/news/NewsTicker';
 import { SidePanel } from '@/components/layout/SidePanel';
 import { TopBar } from '@/components/layout/TopBar';
@@ -14,6 +21,7 @@ import { TrendingCryptos } from '@/components/dashboard/TrendingCryptos';
 import { AIInsights } from '@/components/ai/AIInsights';
 
 const Index = () => {
+  const { signOut } = useAuth();
   const [selectedSymbol, setSelectedSymbol] = useState('BTC-AUD');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,7 +52,16 @@ const Index = () => {
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
-          <QuickStats />
+          <div className="flex items-center justify-between">
+            <QuickStats />
+            <Button 
+              onClick={signOut}
+              variant="outline"
+              className="border-red-600 text-red-400 hover:bg-red-600/20"
+            >
+              Sign Out
+            </Button>
+          </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             <div className="lg:col-span-2 space-y-4">
@@ -55,6 +72,10 @@ const Index = () => {
                   <TabsTrigger value="overview">Market Overview</TabsTrigger>
                   <TabsTrigger value="bots">AI Bots</TabsTrigger>
                   <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+                  <TabsTrigger value="realtime">Real-Time Portfolio</TabsTrigger>
+                  <TabsTrigger value="defi">DeFi Tools</TabsTrigger>
+                  <TabsTrigger value="alerts">Price Alerts</TabsTrigger>
+                  <TabsTrigger value="nft">NFT Manager</TabsTrigger>
                   <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 </TabsList>
                 
@@ -70,14 +91,31 @@ const Index = () => {
                   <Portfolio />
                 </TabsContent>
                 
+                <TabsContent value="realtime">
+                  <RealTimePortfolio />
+                </TabsContent>
+                
+                <TabsContent value="defi">
+                  <YieldFarmingCalculator />
+                </TabsContent>
+                
+                <TabsContent value="alerts">
+                  <PriceAlertSystem />
+                </TabsContent>
+                
+                <TabsContent value="nft">
+                  <NFTCollectionManager />
+                </TabsContent>
+                
                 <TabsContent value="analytics">
-                  <AIInsights />
+                  <AdvancedTradingAnalytics />
                 </TabsContent>
               </Tabs>
             </div>
             
             <div className="space-y-4">
               <TrendingCryptos onSymbolSelect={setSelectedSymbol} />
+              <AIInsights />
             </div>
           </div>
         </main>
