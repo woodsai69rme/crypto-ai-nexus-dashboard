@@ -42,9 +42,8 @@ export const AlgorandPortfolio = () => {
 
     setLoading(true);
     try {
-      // Get account information - fix: access the account property from response
-      const accountResponse = await algorandService.getAccount(address);
-      const accountData = accountResponse.account || accountResponse;
+      // Get account information - fix: directly use the response as it's already the account data
+      const accountData = await algorandService.getAccount(address);
       setAccount(accountData);
 
       // Load asset information for each asset the account holds
