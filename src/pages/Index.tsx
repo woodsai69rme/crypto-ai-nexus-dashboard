@@ -45,7 +45,7 @@ const Index = () => {
         marketDataService.startRealTimeUpdates();
         
         // Load initial market data
-        const symbols = ['BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD'];
+        const symbols = ['BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD', 'DOT-AUD'];
         await marketDataService.getMarketData(symbols);
         
         // Simulate app initialization delay

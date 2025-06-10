@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +19,7 @@ export const EnhancedTradingChart = ({ selectedSymbol, onSymbolChange }: Enhance
   const [chartData, setChartData] = useState<CandlestickData[]>([]);
   const [marketData, setMarketData] = useState<MarketData | null>(null);
   const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
+  const [availableSymbols, setAvailableSymbols] = useState<MarketData[]>([]);
   const [indicators, setIndicators] = useState({
     rsi: true,
     macd: false,
@@ -40,12 +40,25 @@ export const EnhancedTradingChart = ({ selectedSymbol, onSymbolChange }: Enhance
   ];
 
   useEffect(() => {
+    // Load initial market data for symbols
+    const loadInitialData = async () => {
+      try {
+        const symbols = await marketDataService.getMarketData();
+        setAvailableSymbols(symbols);
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      }
+    };
+
+    loadInitialData();
+
     // Subscribe to real-time market data
     const unsubscribeMarket = marketDataService.subscribeToMarketData((allData) => {
       const symbolData = allData.find(data => data.symbol === selectedSymbol);
       if (symbolData) {
         setMarketData(symbolData);
       }
+      setAvailableSymbols(allData);
     });
 
     // Subscribe to chart data
@@ -198,7 +211,7 @@ export const EnhancedTradingChart = ({ selectedSymbol, onSymbolChange }: Enhance
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {marketDataService.getMarketData().map((data) => (
+                {availableSymbols.map((data) => (
                   <SelectItem key={data.symbol} value={data.symbol}>
                     {data.symbol}
                   </SelectItem>

@@ -53,7 +53,7 @@ class MarketDataService {
     
     try {
       // Try to fetch real data from CoinGecko
-      const coinGeckoIds = {
+      const coinGeckoIds: Record<string, string> = {
         'BTC-AUD': 'bitcoin',
         'ETH-AUD': 'ethereum',
         'SOL-AUD': 'solana',
@@ -61,11 +61,17 @@ class MarketDataService {
         'DOT-AUD': 'polkadot'
       };
 
-      const ids = targetSymbols.map(symbol => coinGeckoIds[symbol as keyof typeof coinGeckoIds]).filter(Boolean);
+      const ids = targetSymbols.map(symbol => coinGeckoIds[symbol]).filter(Boolean);
       
       if (ids.length > 0) {
         const response = await fetch(
-          `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=aud&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`
+          `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=aud&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`,
+          { 
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+            },
+          }
         );
 
         if (response.ok) {
@@ -79,12 +85,12 @@ class MarketDataService {
                 symbol,
                 name: symbol.split('-')[0],
                 price: coinData.aud || 0,
-                change24h: coinData.aud_24h_change || 0,
+                change24h: (coinData.aud || 0) * (coinData.aud_24h_change || 0) / 100,
                 changePercent24h: coinData.aud_24h_change || 0,
                 volume24h: coinData.aud_24h_vol || 0,
                 marketCap: coinData.aud_market_cap || 0,
-                high24h: coinData.aud * 1.05,
-                low24h: coinData.aud * 0.95,
+                high24h: (coinData.aud || 0) * 1.05,
+                low24h: (coinData.aud || 0) * 0.95,
                 lastUpdated: new Date()
               };
               
@@ -135,11 +141,11 @@ class MarketDataService {
 
   private getBasePriceForSymbol(symbol: string): number {
     const basePrices: Record<string, number> = {
-      'BTC-AUD': 65000,
-      'ETH-AUD': 4200,
-      'SOL-AUD': 180,
-      'ADA-AUD': 1.2,
-      'DOT-AUD': 25
+      'BTC-AUD': 95000,
+      'ETH-AUD': 4800,
+      'SOL-AUD': 240,
+      'ADA-AUD': 1.5,
+      'DOT-AUD': 9.5
     };
     return basePrices[symbol] || 100;
   }
@@ -151,6 +157,9 @@ class MarketDataService {
     const currentData = Array.from(this.marketData.values());
     if (currentData.length > 0) {
       callback(currentData);
+    } else {
+      // Load initial data if none exists
+      this.getMarketData().then(data => callback(data));
     }
 
     return () => {
@@ -306,12 +315,16 @@ class MarketDataService {
     this.isRealTimeActive = true;
     this.updateInterval = setInterval(() => {
       this.updateMarketData();
-    }, 5000); // Update every 5 seconds
+    }, 30000); // Update every 30 seconds
   }
 
   private async updateMarketData(): Promise<void> {
     try {
       const symbols = Array.from(this.marketData.keys());
+      if (symbols.length === 0) {
+        symbols.push('BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD', 'DOT-AUD');
+      }
+      
       const updatedData = await this.getMarketData(symbols);
       
       // Notify all market data subscribers
