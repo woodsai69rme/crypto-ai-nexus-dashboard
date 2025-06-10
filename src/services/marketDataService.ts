@@ -8,19 +8,7 @@ interface MarketData {
   marketCap: number;
   high24h: number;
   low24h: number;
-  lastUpdated: number;
-}
-
-interface OrderBookEntry {
-  price: number;
-  quantity: number;
-  total: number;
-}
-
-interface OrderBook {
-  bids: OrderBookEntry[];
-  asks: OrderBookEntry[];
-  lastUpdated: number;
+  lastUpdate: number;
 }
 
 interface CandlestickData {
@@ -32,361 +20,344 @@ interface CandlestickData {
   volume: number;
 }
 
+interface OrderBookEntry {
+  price: number;
+  quantity: number;
+  total: number;
+}
+
+interface OrderBook {
+  bids: OrderBookEntry[];
+  asks: OrderBookEntry[];
+  lastUpdate: number;
+}
+
 class MarketDataService {
-  private subscribers: Set<(data: MarketData[]) => void> = new Set();
-  private orderBookSubscribers: Map<string, Set<(data: OrderBook) => void>> = new Map();
-  private chartSubscribers: Map<string, Set<(data: CandlestickData[]) => void>> = new Map();
-  private isConnected = false;
+  private static instance: MarketDataService;
+  private wsConnection: WebSocket | null = null;
+  private subscribers: Map<string, Set<(data: any) => void>> = new Map();
+  private lastPrices: Map<string, MarketData> = new Map();
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
-  private reconnectDelay = 1000;
 
-  // Simulated market data for Australian crypto pairs
-  private marketData: Map<string, MarketData> = new Map();
-
-  constructor() {
-    this.initializeMarketData();
-    this.startRealTimeUpdates();
+  static getInstance(): MarketDataService {
+    if (!MarketDataService.instance) {
+      MarketDataService.instance = new MarketDataService();
+    }
+    return MarketDataService.instance;
   }
 
-  private initializeMarketData() {
-    const symbols = [
-      'BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD', 'DOT-AUD', 
-      'LINK-AUD', 'MATIC-AUD', 'AVAX-AUD', 'ALGO-AUD', 'ATOM-AUD',
-      'FTM-AUD', 'NEAR-AUD', 'ICP-AUD', 'APT-AUD', 'ARB-AUD'
-    ];
+  // CoinGecko API integration for real market data
+  async getMarketData(symbols: string[]): Promise<Map<string, MarketData>> {
+    try {
+      // Convert symbols to CoinGecko IDs
+      const coinIds = symbols.map(symbol => {
+        const mapping: Record<string, string> = {
+          'BTC-AUD': 'bitcoin',
+          'ETH-AUD': 'ethereum',
+          'SOL-AUD': 'solana',
+          'ADA-AUD': 'cardano',
+          'DOT-AUD': 'polkadot',
+          'LINK-AUD': 'chainlink',
+          'MATIC-AUD': 'polygon',
+          'AVAX-AUD': 'avalanche-2'
+        };
+        return mapping[symbol] || symbol.split('-')[0].toLowerCase();
+      }).join(',');
+
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=aud&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`
+      );
+
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const marketData = new Map<string, MarketData>();
+
+      symbols.forEach(symbol => {
+        const coinId = symbol.split('-')[0].toLowerCase();
+        const mapping: Record<string, string> = {
+          'btc': 'bitcoin',
+          'eth': 'ethereum',
+          'sol': 'solana',
+          'ada': 'cardano',
+          'dot': 'polkadot',
+          'link': 'chainlink',
+          'matic': 'polygon',
+          'avax': 'avalanche-2'
+        };
+        
+        const actualCoinId = mapping[coinId] || coinId;
+        const coinData = data[actualCoinId];
+
+        if (coinData) {
+          const marketInfo: MarketData = {
+            symbol,
+            price: coinData.aud || 0,
+            change24h: (coinData.aud_24h_change || 0),
+            changePercent24h: coinData.aud_24h_change || 0,
+            volume24h: coinData.aud_24h_vol || 0,
+            marketCap: coinData.aud_market_cap || 0,
+            high24h: coinData.aud * 1.05, // Estimated
+            low24h: coinData.aud * 0.95, // Estimated
+            lastUpdate: Date.now()
+          };
+
+          marketData.set(symbol, marketInfo);
+          this.lastPrices.set(symbol, marketInfo);
+        }
+      });
+
+      return marketData;
+    } catch (error) {
+      console.error('Error fetching market data:', error);
+      
+      // Return mock data as fallback
+      return this.getMockMarketData(symbols);
+    }
+  }
+
+  private getMockMarketData(symbols: string[]): Map<string, MarketData> {
+    const mockData = new Map<string, MarketData>();
+    
+    const basePrices: Record<string, number> = {
+      'BTC-AUD': 95000,
+      'ETH-AUD': 3500,
+      'SOL-AUD': 180,
+      'ADA-AUD': 0.45,
+      'DOT-AUD': 8.50,
+      'LINK-AUD': 18.20,
+      'MATIC-AUD': 0.85,
+      'AVAX-AUD': 35.50
+    };
 
     symbols.forEach(symbol => {
-      const basePrice = this.getBasePriceForSymbol(symbol);
-      this.marketData.set(symbol, {
+      const basePrice = basePrices[symbol] || 100;
+      const variation = (Math.random() - 0.5) * 0.1; // ±5% variation
+      const price = basePrice * (1 + variation);
+      const change24h = (Math.random() - 0.5) * 0.2; // ±10% change
+
+      mockData.set(symbol, {
         symbol,
-        price: basePrice,
-        change24h: (Math.random() - 0.5) * basePrice * 0.1,
-        changePercent24h: (Math.random() - 0.5) * 10,
+        price,
+        change24h: price * change24h,
+        changePercent24h: change24h * 100,
         volume24h: Math.random() * 1000000000,
-        marketCap: Math.random() * 100000000000,
-        high24h: basePrice * (1 + Math.random() * 0.05),
-        low24h: basePrice * (1 - Math.random() * 0.05),
-        lastUpdated: Date.now()
+        marketCap: price * Math.random() * 100000000,
+        high24h: price * 1.05,
+        low24h: price * 0.95,
+        lastUpdate: Date.now()
       });
     });
+
+    return mockData;
   }
 
-  private getBasePriceForSymbol(symbol: string): number {
-    const basePrices: { [key: string]: number } = {
-      'BTC-AUD': 67500,
-      'ETH-AUD': 3800,
-      'SOL-AUD': 145,
-      'ADA-AUD': 0.65,
-      'DOT-AUD': 8.5,
-      'LINK-AUD': 18.5,
-      'MATIC-AUD': 1.25,
-      'AVAX-AUD': 45,
-      'ALGO-AUD': 0.28,
-      'ATOM-AUD': 12.5,
-      'FTM-AUD': 0.85,
-      'NEAR-AUD': 5.2,
-      'ICP-AUD': 8.8,
-      'APT-AUD': 12.5,
-      'ARB-AUD': 1.85
-    };
-    return basePrices[symbol] || 100;
-  }
-
-  private startRealTimeUpdates() {
-    // Simulate real-time price updates every 2 seconds
-    setInterval(() => {
-      this.updatePrices();
-      this.notifySubscribers();
-    }, 2000);
-
-    // Update order books more frequently
-    setInterval(() => {
-      this.updateOrderBooks();
-    }, 1000);
-
-    // Generate new candlestick data
-    setInterval(() => {
-      this.updateCandlestickData();
-    }, 60000); // Every minute
-  }
-
-  private updatePrices() {
-    this.marketData.forEach((data, symbol) => {
-      // Simulate realistic price movements
-      const volatility = this.getVolatilityForSymbol(symbol);
-      const change = (Math.random() - 0.5) * volatility * data.price;
-      const newPrice = Math.max(0.01, data.price + change);
-      
-      const change24h = newPrice - (data.price - data.change24h);
-      const changePercent24h = ((change24h / (newPrice - change24h)) * 100);
-
-      this.marketData.set(symbol, {
-        ...data,
-        price: newPrice,
-        change24h,
-        changePercent24h,
-        high24h: Math.max(data.high24h, newPrice),
-        low24h: Math.min(data.low24h, newPrice),
-        lastUpdated: Date.now()
-      });
-    });
-  }
-
-  private getVolatilityForSymbol(symbol: string): number {
-    // Different volatilities for different assets
-    const volatilities: { [key: string]: number } = {
-      'BTC-AUD': 0.02,
-      'ETH-AUD': 0.025,
-      'SOL-AUD': 0.04,
-      'ADA-AUD': 0.035,
-      'DOT-AUD': 0.03,
-      'ALGO-AUD': 0.05
-    };
-    return volatilities[symbol] || 0.03;
-  }
-
-  private updateOrderBooks() {
-    this.orderBookSubscribers.forEach((subscribers, symbol) => {
-      const data = this.marketData.get(symbol);
-      if (!data) return;
-
-      const orderBook = this.generateOrderBook(data.price);
-      subscribers.forEach(callback => callback(orderBook));
-    });
-  }
-
-  private generateOrderBook(currentPrice: number): OrderBook {
-    const bids: OrderBookEntry[] = [];
-    const asks: OrderBookEntry[] = [];
-
-    // Generate bids (buy orders) below current price
-    for (let i = 0; i < 15; i++) {
-      const price = currentPrice * (1 - (i + 1) * 0.001);
-      const quantity = Math.random() * 10 + 0.1;
-      bids.push({
-        price: parseFloat(price.toFixed(2)),
-        quantity: parseFloat(quantity.toFixed(6)),
-        total: parseFloat((price * quantity).toFixed(2))
-      });
+  async getCandlestickData(symbol: string, interval: string = '1h', limit: number = 100): Promise<CandlestickData[]> {
+    try {
+      // For production, you would integrate with a real exchange API
+      // For now, generating realistic candlestick data
+      return this.generateMockCandlestickData(symbol, interval, limit);
+    } catch (error) {
+      console.error('Error fetching candlestick data:', error);
+      return this.generateMockCandlestickData(symbol, interval, limit);
     }
-
-    // Generate asks (sell orders) above current price
-    for (let i = 0; i < 15; i++) {
-      const price = currentPrice * (1 + (i + 1) * 0.001);
-      const quantity = Math.random() * 10 + 0.1;
-      asks.push({
-        price: parseFloat(price.toFixed(2)),
-        quantity: parseFloat(quantity.toFixed(6)),
-        total: parseFloat((price * quantity).toFixed(2))
-      });
-    }
-
-    return {
-      bids: bids.sort((a, b) => b.price - a.price), // Highest bid first
-      asks: asks.sort((a, b) => a.price - b.price), // Lowest ask first
-      lastUpdated: Date.now()
-    };
   }
 
-  private updateCandlestickData() {
-    this.chartSubscribers.forEach((subscribers, symbol) => {
-      const data = this.marketData.get(symbol);
-      if (!data) return;
-
-      const candlestick = this.generateCandlestick(data);
-      subscribers.forEach(callback => {
-        // In a real implementation, you'd maintain historical data
-        const historicalData = this.generateHistoricalData(symbol, 100);
-        historicalData.push(candlestick);
-        callback(historicalData);
-      });
-    });
-  }
-
-  private generateCandlestick(data: MarketData): CandlestickData {
-    const open = data.price * (1 + (Math.random() - 0.5) * 0.01);
-    const close = data.price;
-    const high = Math.max(open, close) * (1 + Math.random() * 0.005);
-    const low = Math.min(open, close) * (1 - Math.random() * 0.005);
-    const volume = Math.random() * 1000000;
-
-    return {
-      timestamp: Date.now(),
-      open: parseFloat(open.toFixed(2)),
-      high: parseFloat(high.toFixed(2)),
-      low: parseFloat(low.toFixed(2)),
-      close: parseFloat(close.toFixed(2)),
-      volume: Math.floor(volume)
-    };
-  }
-
-  private generateHistoricalData(symbol: string, count: number): CandlestickData[] {
+  private generateMockCandlestickData(symbol: string, interval: string, limit: number): CandlestickData[] {
     const data: CandlestickData[] = [];
-    const currentPrice = this.marketData.get(symbol)?.price || 100;
-    let price = currentPrice * 0.9; // Start 10% lower
+    const currentPrice = this.lastPrices.get(symbol)?.price || 100;
+    let price = currentPrice;
+    
+    const intervalMs = this.getIntervalMs(interval);
+    const startTime = Date.now() - (limit * intervalMs);
 
-    for (let i = 0; i < count; i++) {
-      const timestamp = Date.now() - (count - i) * 60000; // 1 minute intervals
+    for (let i = 0; i < limit; i++) {
+      const timestamp = startTime + (i * intervalMs);
+      const volatility = 0.02; // 2% volatility
+      
       const open = price;
-      const change = (Math.random() - 0.5) * price * 0.02;
-      const close = price + change;
+      const change = (Math.random() - 0.5) * volatility * price;
+      const close = open + change;
       const high = Math.max(open, close) * (1 + Math.random() * 0.01);
       const low = Math.min(open, close) * (1 - Math.random() * 0.01);
       const volume = Math.random() * 1000000;
 
       data.push({
         timestamp,
-        open: parseFloat(open.toFixed(2)),
-        high: parseFloat(high.toFixed(2)),
-        low: parseFloat(low.toFixed(2)),
-        close: parseFloat(close.toFixed(2)),
-        volume: Math.floor(volume)
+        open,
+        high,
+        low,
+        close,
+        volume
       });
 
-      price = close; // Next candle starts where this one ended
+      price = close;
     }
 
     return data;
   }
 
-  private notifySubscribers() {
-    const allData = Array.from(this.marketData.values());
-    this.subscribers.forEach(callback => callback(allData));
+  private getIntervalMs(interval: string): number {
+    const intervalMap: Record<string, number> = {
+      '1m': 60 * 1000,
+      '5m': 5 * 60 * 1000,
+      '15m': 15 * 60 * 1000,
+      '1h': 60 * 60 * 1000,
+      '4h': 4 * 60 * 60 * 1000,
+      '1d': 24 * 60 * 60 * 1000,
+      '1w': 7 * 24 * 60 * 60 * 1000
+    };
+    return intervalMap[interval] || intervalMap['1h'];
   }
 
-  // Public API methods
-  public getMarketData(): MarketData[] {
-    return Array.from(this.marketData.values());
+  async getOrderBook(symbol: string): Promise<OrderBook> {
+    // Generate mock order book data
+    const basePrice = this.lastPrices.get(symbol)?.price || 100;
+    const bids: OrderBookEntry[] = [];
+    const asks: OrderBookEntry[] = [];
+
+    // Generate bids (buy orders)
+    for (let i = 0; i < 20; i++) {
+      const price = basePrice * (1 - (i + 1) * 0.001); // Price decreases
+      const quantity = Math.random() * 10;
+      bids.push({
+        price,
+        quantity,
+        total: price * quantity
+      });
+    }
+
+    // Generate asks (sell orders)
+    for (let i = 0; i < 20; i++) {
+      const price = basePrice * (1 + (i + 1) * 0.001); // Price increases
+      const quantity = Math.random() * 10;
+      asks.push({
+        price,
+        quantity,
+        total: price * quantity
+      });
+    }
+
+    return {
+      bids,
+      asks,
+      lastUpdate: Date.now()
+    };
   }
 
-  public getSymbolData(symbol: string): MarketData | undefined {
-    return this.marketData.get(symbol);
-  }
-
-  public subscribeToMarketData(callback: (data: MarketData[]) => void): () => void {
-    this.subscribers.add(callback);
-    
-    // Immediately send current data
-    callback(this.getMarketData());
+  subscribe(event: string, callback: (data: any) => void): () => void {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, new Set());
+    }
+    this.subscribers.get(event)!.add(callback);
 
     // Return unsubscribe function
     return () => {
-      this.subscribers.delete(callback);
+      this.subscribers.get(event)?.delete(callback);
     };
   }
 
-  public subscribeToOrderBook(symbol: string, callback: (data: OrderBook) => void): () => void {
-    if (!this.orderBookSubscribers.has(symbol)) {
-      this.orderBookSubscribers.set(symbol, new Set());
-    }
-    
-    const subscribers = this.orderBookSubscribers.get(symbol)!;
-    subscribers.add(callback);
-
-    // Immediately send current order book
-    const marketData = this.marketData.get(symbol);
-    if (marketData) {
-      callback(this.generateOrderBook(marketData.price));
-    }
-
-    return () => {
-      subscribers.delete(callback);
-      if (subscribers.size === 0) {
-        this.orderBookSubscribers.delete(symbol);
+  private emit(event: string, data: any): void {
+    this.subscribers.get(event)?.forEach(callback => {
+      try {
+        callback(data);
+      } catch (error) {
+        console.error('Error in market data callback:', error);
       }
-    };
+    });
   }
 
-  public subscribeToChartData(symbol: string, callback: (data: CandlestickData[]) => void): () => void {
-    if (!this.chartSubscribers.has(symbol)) {
-      this.chartSubscribers.set(symbol, new Set());
-    }
+  startRealTimeUpdates(): void {
+    // Simulate real-time price updates
+    setInterval(() => {
+      this.lastPrices.forEach((data, symbol) => {
+        const variation = (Math.random() - 0.5) * 0.01; // ±0.5% variation
+        const newPrice = data.price * (1 + variation);
+        const change24h = newPrice - data.price;
+        const changePercent24h = (change24h / data.price) * 100;
 
-    const subscribers = this.chartSubscribers.get(symbol)!;
-    subscribers.add(callback);
+        const updatedData: MarketData = {
+          ...data,
+          price: newPrice,
+          change24h,
+          changePercent24h,
+          lastUpdate: Date.now()
+        };
 
-    // Immediately send historical data
-    const historicalData = this.generateHistoricalData(symbol, 100);
-    callback(historicalData);
-
-    return () => {
-      subscribers.delete(callback);
-      if (subscribers.size === 0) {
-        this.chartSubscribers.delete(symbol);
-      }
-    };
+        this.lastPrices.set(symbol, updatedData);
+        this.emit('priceUpdate', { symbol, data: updatedData });
+      });
+    }, 5000); // Update every 5 seconds
   }
 
-  public getTopGainers(limit: number = 10): MarketData[] {
-    return Array.from(this.marketData.values())
-      .sort((a, b) => b.changePercent24h - a.changePercent24h)
-      .slice(0, limit);
+  getLastPrice(symbol: string): MarketData | undefined {
+    return this.lastPrices.get(symbol);
   }
 
-  public getTopLosers(limit: number = 10): MarketData[] {
-    return Array.from(this.marketData.values())
-      .sort((a, b) => a.changePercent24h - b.changePercent24h)
-      .slice(0, limit);
-  }
-
-  public getTopVolume(limit: number = 10): MarketData[] {
-    return Array.from(this.marketData.values())
-      .sort((a, b) => b.volume24h - a.volume24h)
-      .slice(0, limit);
-  }
-
-  public async searchSymbols(query: string): Promise<MarketData[]> {
-    const lowercaseQuery = query.toLowerCase();
-    return Array.from(this.marketData.values())
-      .filter(data => 
-        data.symbol.toLowerCase().includes(lowercaseQuery) ||
-        data.symbol.replace('-AUD', '').toLowerCase().includes(lowercaseQuery)
+  async getTrendingCoins(): Promise<MarketData[]> {
+    try {
+      const response = await fetch(
+        'https://api.coingecko.com/api/v3/search/trending'
       );
-  }
 
-  public formatPrice(price: number, currency: string = 'AUD'): string {
-    return new Intl.NumberFormat('en-AU', {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 6
-    }).format(price);
-  }
+      if (!response.ok) {
+        throw new Error(`CoinGecko API error: ${response.status}`);
+      }
 
-  public formatChange(change: number, isPercent: boolean = false): string {
-    const formatted = isPercent 
-      ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`
-      : new Intl.NumberFormat('en-AU', {
-          style: 'currency',
-          currency: 'AUD',
-          signDisplay: 'always'
-        }).format(change);
-    
-    return formatted;
-  }
+      const data = await response.json();
+      const trending = data.coins.slice(0, 10);
 
-  public formatVolume(volume: number): string {
-    if (volume >= 1e9) return `$${(volume / 1e9).toFixed(2)}B`;
-    if (volume >= 1e6) return `$${(volume / 1e6).toFixed(2)}M`;
-    if (volume >= 1e3) return `$${(volume / 1e3).toFixed(2)}K`;
-    return `$${volume.toFixed(2)}`;
-  }
+      const trendingData: MarketData[] = [];
 
-  public getConnectionStatus(): boolean {
-    return this.isConnected;
-  }
+      for (const coin of trending) {
+        const priceResponse = await fetch(
+          `https://api.coingecko.com/api/v3/simple/price?ids=${coin.item.id}&vs_currencies=aud&include_24hr_change=true`
+        );
 
-  public reconnect(): void {
-    if (this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.reconnectAttempts++;
-      setTimeout(() => {
-        this.isConnected = true;
-        this.reconnectAttempts = 0;
-      }, this.reconnectDelay * this.reconnectAttempts);
+        if (priceResponse.ok) {
+          const priceData = await priceResponse.json();
+          const coinPriceData = priceData[coin.item.id];
+
+          if (coinPriceData) {
+            trendingData.push({
+              symbol: `${coin.item.symbol.toUpperCase()}-AUD`,
+              price: coinPriceData.aud || 0,
+              change24h: coinPriceData.aud_24h_change || 0,
+              changePercent24h: coinPriceData.aud_24h_change || 0,
+              volume24h: 0,
+              marketCap: 0,
+              high24h: 0,
+              low24h: 0,
+              lastUpdate: Date.now()
+            });
+          }
+        }
+      }
+
+      return trendingData;
+    } catch (error) {
+      console.error('Error fetching trending coins:', error);
+      
+      // Return mock trending data
+      return [
+        { symbol: 'BTC-AUD', price: 95000, change24h: 2300, changePercent24h: 2.5, volume24h: 1200000000, marketCap: 1800000000000, high24h: 96000, low24h: 92000, lastUpdate: Date.now() },
+        { symbol: 'ETH-AUD', price: 3500, change24h: -45, changePercent24h: -1.3, volume24h: 800000000, marketCap: 420000000000, high24h: 3600, low24h: 3400, lastUpdate: Date.now() },
+        { symbol: 'SOL-AUD', price: 180, change24h: 8.5, changePercent24h: 4.9, volume24h: 400000000, marketCap: 78000000000, high24h: 185, low24h: 175, lastUpdate: Date.now() }
+      ];
     }
+  }
+
+  cleanup(): void {
+    if (this.wsConnection) {
+      this.wsConnection.close();
+      this.wsConnection = null;
+    }
+    this.subscribers.clear();
   }
 }
 
-export const marketDataService = new MarketDataService();
-export type { MarketData, OrderBook, OrderBookEntry, CandlestickData };
+export const marketDataService = MarketDataService.getInstance();
+export type { MarketData, CandlestickData, OrderBook, OrderBookEntry };

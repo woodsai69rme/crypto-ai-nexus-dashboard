@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { MarketOverview } from '@/components/trading/MarketOverview';
@@ -25,8 +24,10 @@ import { AlgorandDeFi } from '@/components/algorand/AlgorandDeFi';
 import { CryptoNews } from '@/components/trading/CryptoNews';
 import { MultiChainTracker } from '@/components/trading/MultiChainTracker';
 import { PaperTradingDashboard } from '@/components/trading/PaperTradingDashboard';
+import { SettingsManager } from '@/components/settings/SettingsManager';
 import { Activity, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { marketDataService } from '@/services/marketDataService';
 
 const Index = () => {
   const { signOut } = useAuth();
@@ -34,12 +35,38 @@ const Index = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('BTC-AUD');
   const [isLoading, setIsLoading] = useState(true);
   const [isPaperTradingOpen, setIsPaperTradingOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     // Initialize the application
-    const timer = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timer);
+    const initializeApp = async () => {
+      try {
+        // Start real-time market data updates
+        marketDataService.startRealTimeUpdates();
+        
+        // Load initial market data
+        const symbols = ['BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD'];
+        await marketDataService.getMarketData(symbols);
+        
+        // Simulate app initialization delay
+        setTimeout(() => setIsLoading(false), 1500);
+      } catch (error) {
+        console.error('Error initializing app:', error);
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+
+    // Cleanup on unmount
+    return () => {
+      marketDataService.cleanup();
+    };
   }, []);
+
+  const handleOpenSettings = () => {
+    setIsSettingsOpen(true);
+  };
 
   const handleOpenNotifications = () => {
     toast({
@@ -52,13 +79,6 @@ const Index = () => {
     toast({
       title: "Profile",
       description: "Opening user profile settings...",
-    });
-  };
-
-  const handleOpenSettings = () => {
-    toast({
-      title: "Settings",
-      description: "Opening settings panel...",
     });
   };
 
@@ -76,10 +96,14 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <TopBar />
+      <TopBar 
+        onOpenSettings={handleOpenSettings}
+        onOpenNotifications={handleOpenNotifications}
+        onOpenProfile={handleOpenProfile}
+      />
       <NewsTicker onOpenSettings={handleOpenSettings} />
       
-      <div className="flex h-screen pt-24">
+      <div className="flex h-screen" style={{ paddingTop: '120px' }}>
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
@@ -197,6 +221,11 @@ const Index = () => {
       <PaperTradingDashboard 
         isOpen={isPaperTradingOpen}
         onClose={() => setIsPaperTradingOpen(false)}
+      />
+
+      <SettingsManager
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );
