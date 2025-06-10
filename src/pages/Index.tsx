@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
@@ -26,18 +25,46 @@ import { CryptoNews } from '@/components/trading/CryptoNews';
 import { MultiChainTracker } from '@/components/trading/MultiChainTracker';
 import { PaperTradingDashboard } from '@/components/trading/PaperTradingDashboard';
 import { Activity } from 'lucide-react';
+import { useToast } from '@/hooks/useToast';
+import { Settings } from 'lucide-react';
+import { SettingsManager } from '@/components/layout/SettingsManager';
+import { ComprehensiveBotManager } from '@/components/bots/ComprehensiveBotManager';
 
 const Index = () => {
   const { signOut } = useAuth();
+  const { toast } = useToast();
   const [selectedSymbol, setSelectedSymbol] = useState('BTC-AUD');
   const [isLoading, setIsLoading] = useState(true);
   const [isPaperTradingOpen, setIsPaperTradingOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     // Initialize the application
     const timer = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleOpenSettings = () => {
+    setIsSettingsOpen(true);
+  };
+
+  const handleOpenNotifications = () => {
+    toast({
+      title: "Notifications",
+      description: "No new notifications at this time",
+    });
+  };
+
+  const handleOpenProfile = () => {
+    toast({
+      title: "Profile",
+      description: "Opening user profile settings...",
+    });
+  };
+
+  const handleOpenTickerSettings = () => {
+    setIsSettingsOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -53,10 +80,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <TopBar />
-      <NewsTicker />
+      <TopBar 
+        onOpenSettings={handleOpenSettings}
+        onOpenNotifications={handleOpenNotifications}
+        onOpenProfile={handleOpenProfile}
+      />
+      <NewsTicker onOpenSettings={handleOpenTickerSettings} />
       
-      <div className="flex h-screen pt-20">
+      {/* Main content with proper spacing to avoid ticker overlap */}
+      <div className="flex h-screen" style={{ paddingTop: '120px' }}> {/* Fixed spacing for ticker */}
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
@@ -69,6 +101,14 @@ const Index = () => {
               >
                 <Activity className="h-4 w-4 mr-2" />
                 Paper Trading
+              </Button>
+              <Button 
+                onClick={handleOpenSettings}
+                variant="outline"
+                className="border-emerald-600 text-emerald-400 hover:bg-emerald-600/20"
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </Button>
               <Button 
                 onClick={signOut}
@@ -85,20 +125,21 @@ const Index = () => {
               <TradingChart selectedSymbol={selectedSymbol} />
               
               <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto">
-                  <TabsTrigger value="overview">Market</TabsTrigger>
-                  <TabsTrigger value="bots">AI Bots</TabsTrigger>
-                  <TabsTrigger value="advanced-bots">Advanced Bots</TabsTrigger>
-                  <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-                  <TabsTrigger value="realtime">Real-Time</TabsTrigger>
-                  <TabsTrigger value="defi">DeFi</TabsTrigger>
-                  <TabsTrigger value="alerts">Alerts</TabsTrigger>
-                  <TabsTrigger value="nft">NFT</TabsTrigger>
-                  <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                  <TabsTrigger value="algorand">Algorand</TabsTrigger>
-                  <TabsTrigger value="algo-defi">Algo DeFi</TabsTrigger>
-                  <TabsTrigger value="news">News</TabsTrigger>
-                  <TabsTrigger value="multichain">Multi-Chain</TabsTrigger>
+                <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto gap-1 p-2">
+                  <TabsTrigger value="overview" className="text-xs">Market</TabsTrigger>
+                  <TabsTrigger value="bots" className="text-xs">AI Bots</TabsTrigger>
+                  <TabsTrigger value="advanced-bots" className="text-xs">Advanced</TabsTrigger>
+                  <TabsTrigger value="comprehensive-bots" className="text-xs">All Bots</TabsTrigger>
+                  <TabsTrigger value="portfolio" className="text-xs">Portfolio</TabsTrigger>
+                  <TabsTrigger value="realtime" className="text-xs">Real-Time</TabsTrigger>
+                  <TabsTrigger value="defi" className="text-xs">DeFi</TabsTrigger>
+                  <TabsTrigger value="alerts" className="text-xs">Alerts</TabsTrigger>
+                  <TabsTrigger value="nft" className="text-xs">NFT</TabsTrigger>
+                  <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
+                  <TabsTrigger value="algorand" className="text-xs">Algorand</TabsTrigger>
+                  <TabsTrigger value="algo-defi" className="text-xs">Algo DeFi</TabsTrigger>
+                  <TabsTrigger value="news" className="text-xs">News</TabsTrigger>
+                  <TabsTrigger value="multichain" className="text-xs">Multi-Chain</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview">
@@ -111,6 +152,10 @@ const Index = () => {
                 
                 <TabsContent value="advanced-bots">
                   <AdvancedBotManager />
+                </TabsContent>
+                
+                <TabsContent value="comprehensive-bots">
+                  <ComprehensiveBotManager />
                 </TabsContent>
                 
                 <TabsContent value="portfolio">
@@ -163,10 +208,15 @@ const Index = () => {
         </main>
       </div>
 
-      {/* Paper Trading Dashboard */}
+      {/* Modals */}
       <PaperTradingDashboard 
         isOpen={isPaperTradingOpen}
         onClose={() => setIsPaperTradingOpen(false)}
+      />
+
+      <SettingsManager
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );
