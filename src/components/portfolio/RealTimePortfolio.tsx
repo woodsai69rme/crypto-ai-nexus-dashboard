@@ -80,7 +80,19 @@ export const RealTimePortfolio = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setPortfolios(data || []);
+      
+      // Map the data to match our interface
+      const mappedPortfolios = data?.map(portfolio => ({
+        id: portfolio.id,
+        name: portfolio.name,
+        total_value: portfolio.total_value,
+        total_pnl: portfolio.total_pnl,
+        total_pnl_percentage: portfolio.total_pnl_percentage,
+        positions: Array.isArray(portfolio.positions) ? portfolio.positions : [],
+        updated_at: portfolio.updated_at
+      })) || [];
+      
+      setPortfolios(mappedPortfolios);
     } catch (error) {
       console.error('Error fetching portfolios:', error);
       toast({

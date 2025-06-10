@@ -1,11 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, TrendingUp, DollarSign, PieChart, FileText, Download } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, DollarSign, PieChart, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface TaxTransaction {

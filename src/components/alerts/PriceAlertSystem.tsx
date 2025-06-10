@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,7 +34,7 @@ export const PriceAlertSystem = () => {
     target_value: ''
   });
 
-  const cryptoSymbols = ['BTC', 'ETH', 'ADA', 'SOL', 'DOT', 'LINK', 'UNI', 'MATIC'];
+  const cryptoSymbols = ['BTC', 'ETH', 'ADA', 'SOL', 'DOT', 'LINK', 'UNI', 'MATIC', 'ALGO'];
 
   useEffect(() => {
     if (!user) return;
@@ -81,7 +80,20 @@ export const PriceAlertSystem = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAlerts(data || []);
+      
+      // Map the data to match our interface
+      const mappedAlerts = data?.map(alert => ({
+        id: alert.id,
+        symbol: alert.symbol,
+        type: alert.type as 'price_above' | 'price_below' | 'percent_change',
+        target_value: alert.target_value,
+        current_value: alert.current_value,
+        condition_met: alert.condition_met,
+        is_active: alert.is_active,
+        created_at: alert.created_at
+      })) || [];
+      
+      setAlerts(mappedAlerts);
     } catch (error) {
       console.error('Error fetching alerts:', error);
     } finally {
@@ -107,7 +119,7 @@ export const PriceAlertSystem = () => {
           symbol: newAlert.symbol,
           type: newAlert.type,
           target_value: parseFloat(newAlert.target_value),
-          current_value: 0, // Will be updated by backend
+          current_value: 0,
           condition_met: false,
           is_active: true
         });

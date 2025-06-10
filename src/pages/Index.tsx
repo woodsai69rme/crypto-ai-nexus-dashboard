@@ -19,6 +19,10 @@ import { TopBar } from '@/components/layout/TopBar';
 import { QuickStats } from '@/components/dashboard/QuickStats';
 import { TrendingCryptos } from '@/components/dashboard/TrendingCryptos';
 import { AIInsights } from '@/components/ai/AIInsights';
+import { AlgorandPortfolio } from '@/components/algorand/AlgorandPortfolio';
+import { AlgorandDeFi } from '@/components/algorand/AlgorandDeFi';
+import { CryptoNews } from '@/components/trading/CryptoNews';
+import { MultiChainTracker } from '@/components/trading/MultiChainTracker';
 
 const Index = () => {
   const { signOut } = useAuth();
@@ -48,7 +52,7 @@ const Index = () => {
       <TopBar />
       <NewsTicker />
       
-      <div className="flex h-screen pt-16">
+      <div className="flex h-screen pt-20">
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
@@ -68,15 +72,19 @@ const Index = () => {
               <TradingChart selectedSymbol={selectedSymbol} />
               
               <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList className="bg-slate-800/50 border border-slate-700">
-                  <TabsTrigger value="overview">Market Overview</TabsTrigger>
+                <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto">
+                  <TabsTrigger value="overview">Market</TabsTrigger>
                   <TabsTrigger value="bots">AI Bots</TabsTrigger>
                   <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
-                  <TabsTrigger value="realtime">Real-Time Portfolio</TabsTrigger>
-                  <TabsTrigger value="defi">DeFi Tools</TabsTrigger>
-                  <TabsTrigger value="alerts">Price Alerts</TabsTrigger>
-                  <TabsTrigger value="nft">NFT Manager</TabsTrigger>
+                  <TabsTrigger value="realtime">Real-Time</TabsTrigger>
+                  <TabsTrigger value="defi">DeFi</TabsTrigger>
+                  <TabsTrigger value="alerts">Alerts</TabsTrigger>
+                  <TabsTrigger value="nft">NFT</TabsTrigger>
                   <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                  <TabsTrigger value="algorand">Algorand</TabsTrigger>
+                  <TabsTrigger value="algo-defi">Algo DeFi</TabsTrigger>
+                  <TabsTrigger value="news">News</TabsTrigger>
+                  <TabsTrigger value="multichain">Multi-Chain</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview">
@@ -109,6 +117,22 @@ const Index = () => {
                 
                 <TabsContent value="analytics">
                   <AdvancedTradingAnalytics />
+                </TabsContent>
+                
+                <TabsContent value="algorand">
+                  <AlgorandPortfolio />
+                </TabsContent>
+                
+                <TabsContent value="algo-defi">
+                  <AlgorandDeFi />
+                </TabsContent>
+                
+                <TabsContent value="news">
+                  <CryptoNews />
+                </TabsContent>
+                
+                <TabsContent value="multichain">
+                  <MultiChainTracker />
                 </TabsContent>
               </Tabs>
             </div>
