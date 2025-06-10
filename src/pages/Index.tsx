@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { MarketOverview } from '@/components/trading/MarketOverview';
 import { TradingChart } from '@/components/trading/TradingChart';
 import { BotManager } from '@/components/bots/BotManager';
+import { AdvancedBotManager } from '@/components/bots/AdvancedBotManager';
 import { Portfolio } from '@/components/portfolio/Portfolio';
 import { RealTimePortfolio } from '@/components/portfolio/RealTimePortfolio';
 import { YieldFarmingCalculator } from '@/components/defi/YieldFarmingCalculator';
@@ -23,11 +24,14 @@ import { AlgorandPortfolio } from '@/components/algorand/AlgorandPortfolio';
 import { AlgorandDeFi } from '@/components/algorand/AlgorandDeFi';
 import { CryptoNews } from '@/components/trading/CryptoNews';
 import { MultiChainTracker } from '@/components/trading/MultiChainTracker';
+import { PaperTradingDashboard } from '@/components/trading/PaperTradingDashboard';
+import { Activity } from 'lucide-react';
 
 const Index = () => {
   const { signOut } = useAuth();
   const [selectedSymbol, setSelectedSymbol] = useState('BTC-AUD');
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaperTradingOpen, setIsPaperTradingOpen] = useState(false);
 
   useEffect(() => {
     // Initialize the application
@@ -58,13 +62,22 @@ const Index = () => {
         <main className="flex-1 overflow-auto p-4 space-y-4">
           <div className="flex items-center justify-between">
             <QuickStats />
-            <Button 
-              onClick={signOut}
-              variant="outline"
-              className="border-red-600 text-red-400 hover:bg-red-600/20"
-            >
-              Sign Out
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={() => setIsPaperTradingOpen(true)}
+                className="bg-emerald-500 hover:bg-emerald-600"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                Paper Trading
+              </Button>
+              <Button 
+                onClick={signOut}
+                variant="outline"
+                className="border-red-600 text-red-400 hover:bg-red-600/20"
+              >
+                Sign Out
+              </Button>
+            </div>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -75,6 +88,7 @@ const Index = () => {
                 <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto">
                   <TabsTrigger value="overview">Market</TabsTrigger>
                   <TabsTrigger value="bots">AI Bots</TabsTrigger>
+                  <TabsTrigger value="advanced-bots">Advanced Bots</TabsTrigger>
                   <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
                   <TabsTrigger value="realtime">Real-Time</TabsTrigger>
                   <TabsTrigger value="defi">DeFi</TabsTrigger>
@@ -93,6 +107,10 @@ const Index = () => {
                 
                 <TabsContent value="bots">
                   <BotManager />
+                </TabsContent>
+                
+                <TabsContent value="advanced-bots">
+                  <AdvancedBotManager />
                 </TabsContent>
                 
                 <TabsContent value="portfolio">
@@ -144,6 +162,12 @@ const Index = () => {
           </div>
         </main>
       </div>
+
+      {/* Paper Trading Dashboard */}
+      <PaperTradingDashboard 
+        isOpen={isPaperTradingOpen}
+        onClose={() => setIsPaperTradingOpen(false)}
+      />
     </div>
   );
 };

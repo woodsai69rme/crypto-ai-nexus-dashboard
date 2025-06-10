@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ExternalLink, Search, TrendingUp, Calendar, Globe } from 'lucide-react';
+import { ExternalLink, Search, TrendingUp, TrendingDown, Calendar, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface NewsArticle {

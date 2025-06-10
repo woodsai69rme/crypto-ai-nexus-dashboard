@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,13 +42,14 @@ export const AlgorandPortfolio = () => {
 
     setLoading(true);
     try {
-      // Get account information
-      const accountData = await algorandService.getAccount(address);
-      setAccount(accountData.account);
+      // Get account information - fix: access the account property from response
+      const accountResponse = await algorandService.getAccount(address);
+      const accountData = accountResponse.account || accountResponse;
+      setAccount(accountData);
 
       // Load asset information for each asset the account holds
-      if (accountData.account.assets) {
-        const assetPromises = accountData.account.assets.map(async (asset) => {
+      if (accountData.assets) {
+        const assetPromises = accountData.assets.map(async (asset) => {
           try {
             return await algorandService.getAsset(asset['asset-id']);
           } catch (error) {
