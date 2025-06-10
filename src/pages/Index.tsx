@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card } from '@/components/ui/card';
@@ -24,11 +25,8 @@ import { AlgorandDeFi } from '@/components/algorand/AlgorandDeFi';
 import { CryptoNews } from '@/components/trading/CryptoNews';
 import { MultiChainTracker } from '@/components/trading/MultiChainTracker';
 import { PaperTradingDashboard } from '@/components/trading/PaperTradingDashboard';
-import { Activity } from 'lucide-react';
-import { useToast } from '@/hooks/useToast';
-import { Settings } from 'lucide-react';
-import { SettingsManager } from '@/components/layout/SettingsManager';
-import { ComprehensiveBotManager } from '@/components/bots/ComprehensiveBotManager';
+import { Activity, Settings } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const { signOut } = useAuth();
@@ -36,17 +34,12 @@ const Index = () => {
   const [selectedSymbol, setSelectedSymbol] = useState('BTC-AUD');
   const [isLoading, setIsLoading] = useState(true);
   const [isPaperTradingOpen, setIsPaperTradingOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     // Initialize the application
     const timer = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(timer);
   }, []);
-
-  const handleOpenSettings = () => {
-    setIsSettingsOpen(true);
-  };
 
   const handleOpenNotifications = () => {
     toast({
@@ -62,8 +55,11 @@ const Index = () => {
     });
   };
 
-  const handleOpenTickerSettings = () => {
-    setIsSettingsOpen(true);
+  const handleOpenSettings = () => {
+    toast({
+      title: "Settings",
+      description: "Opening settings panel...",
+    });
   };
 
   if (isLoading) {
@@ -80,15 +76,10 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      <TopBar 
-        onOpenSettings={handleOpenSettings}
-        onOpenNotifications={handleOpenNotifications}
-        onOpenProfile={handleOpenProfile}
-      />
-      <NewsTicker onOpenSettings={handleOpenTickerSettings} />
+      <TopBar />
+      <NewsTicker onOpenSettings={handleOpenSettings} />
       
-      {/* Main content with proper spacing to avoid ticker overlap */}
-      <div className="flex h-screen" style={{ paddingTop: '120px' }}> {/* Fixed spacing for ticker */}
+      <div className="flex h-screen pt-24">
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
@@ -129,7 +120,6 @@ const Index = () => {
                   <TabsTrigger value="overview" className="text-xs">Market</TabsTrigger>
                   <TabsTrigger value="bots" className="text-xs">AI Bots</TabsTrigger>
                   <TabsTrigger value="advanced-bots" className="text-xs">Advanced</TabsTrigger>
-                  <TabsTrigger value="comprehensive-bots" className="text-xs">All Bots</TabsTrigger>
                   <TabsTrigger value="portfolio" className="text-xs">Portfolio</TabsTrigger>
                   <TabsTrigger value="realtime" className="text-xs">Real-Time</TabsTrigger>
                   <TabsTrigger value="defi" className="text-xs">DeFi</TabsTrigger>
@@ -152,10 +142,6 @@ const Index = () => {
                 
                 <TabsContent value="advanced-bots">
                   <AdvancedBotManager />
-                </TabsContent>
-                
-                <TabsContent value="comprehensive-bots">
-                  <ComprehensiveBotManager />
                 </TabsContent>
                 
                 <TabsContent value="portfolio">
@@ -208,15 +194,9 @@ const Index = () => {
         </main>
       </div>
 
-      {/* Modals */}
       <PaperTradingDashboard 
         isOpen={isPaperTradingOpen}
         onClose={() => setIsPaperTradingOpen(false)}
-      />
-
-      <SettingsManager
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
       />
     </div>
   );

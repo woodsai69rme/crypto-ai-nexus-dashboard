@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { TrendingUp, TrendingDown, Settings, Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { TrendingUp, TrendingDown, Settings, Pause, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NewsItem {
@@ -9,7 +9,6 @@ interface NewsItem {
   sentiment: 'positive' | 'negative' | 'neutral';
   source: string;
   timestamp: string;
-  impact: 'high' | 'medium' | 'low';
 }
 
 interface NewsTickerProps {
@@ -23,46 +22,40 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
       headline: 'Bitcoin reaches new monthly high as institutional adoption increases',
       sentiment: 'positive',
       source: 'CryptoNews',
-      timestamp: '2m ago',
-      impact: 'high'
+      timestamp: '2m ago'
     },
     {
       id: '2',
       headline: 'Ethereum 2.0 staking rewards show strong performance metrics',
       sentiment: 'positive',
       source: 'CoinDesk',
-      timestamp: '5m ago',
-      impact: 'medium'
+      timestamp: '5m ago'
     },
     {
       id: '3',
       headline: 'Market volatility expected due to upcoming Fed announcement',
       sentiment: 'neutral',
       source: 'Bloomberg',
-      timestamp: '8m ago',
-      impact: 'high'
+      timestamp: '8m ago'
     },
     {
       id: '4',
       headline: 'DeFi protocol launches new yield farming opportunities',
       sentiment: 'positive',
       source: 'DeFiPulse',
-      timestamp: '12m ago',
-      impact: 'medium'
+      timestamp: '12m ago'
     },
     {
       id: '5',
       headline: 'Regulatory clarity drives crypto market confidence',
       sentiment: 'positive',
       source: 'Reuters',
-      timestamp: '15m ago',
-      impact: 'high'
+      timestamp: '15m ago'
     }
   ]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
-  const [isMuted, setIsMuted] = useState(false);
   const [speed, setSpeed] = useState(4000);
 
   useEffect(() => {
@@ -97,28 +90,12 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
     }
   };
 
-  const getImpactBadge = (impact: string) => {
-    const colors = {
-      high: 'bg-red-500',
-      medium: 'bg-yellow-500',
-      low: 'bg-green-500'
-    };
-    return (
-      <div className={`h-2 w-2 rounded-full ${colors[impact as keyof typeof colors]}`} />
-    );
-  };
-
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-
   return (
-    <div className="fixed top-16 left-0 right-0 z-[40] bg-slate-800/95 backdrop-blur-sm border-b border-slate-700 shadow-lg">
-      {/* Main ticker content */}
+    <div className="fixed top-16 left-0 right-0 z-30 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700">
       <div className="overflow-hidden">
         <div 
           className="flex transition-transform duration-1000 ease-in-out"
@@ -131,8 +108,7 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
             >
               <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg border ${getSentimentColor(item.sentiment)}`}>
                 {getSentimentIcon(item.sentiment)}
-                {getImpactBadge(item.impact)}
-                <span className="text-sm font-medium text-white line-clamp-1">{item.headline}</span>
+                <span className="text-sm font-medium text-white">{item.headline}</span>
                 <span className="text-xs text-slate-400">• {item.source}</span>
                 <span className="text-xs text-slate-500">{item.timestamp}</span>
               </div>
@@ -141,22 +117,19 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
         </div>
       </div>
       
-      {/* Controls bar - separated and smaller */}
       <div className="flex items-center justify-between px-4 py-1 bg-slate-900/50 border-t border-slate-700/50">
-        {/* Ticker indicators */}
         <div className="flex justify-center space-x-1 flex-1">
           {news.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`h-1 w-6 rounded-full transition-colors duration-300 ${
+              className={`h-1 w-8 rounded-full transition-colors duration-300 ${
                 index === currentIndex ? 'bg-emerald-500' : 'bg-slate-600'
               }`}
             />
           ))}
         </div>
         
-        {/* Controls */}
         <div className="flex items-center space-x-2">
           <Button
             variant="ghost"
@@ -165,14 +138,6 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
             className="h-6 w-6 p-0 hover:bg-slate-600/50"
           >
             {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleMute}
-            className="h-6 w-6 p-0 hover:bg-slate-600/50"
-          >
-            {isMuted ? <VolumeX className="h-3 w-3" /> : <Volume2 className="h-3 w-3" />}
           </Button>
           <Button
             variant="ghost"
