@@ -1,60 +1,127 @@
 
 import { useState } from 'react';
+import { Bell, Settings, User, TrendingUp, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Bell, Settings, User, Search, TrendingUp, DollarSign } from 'lucide-react';
 
-export const TopBar = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+interface TopBarProps {
+  onOpenSettings: () => void;
+  onOpenNotifications: () => void;
+  onOpenProfile: () => void;
+}
+
+export const TopBar = ({ onOpenSettings, onOpenNotifications, onOpenProfile }: TopBarProps) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700">
-      <div className="flex items-center justify-between px-6 h-16">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-3">
-            <TrendingUp className="h-8 w-8 text-emerald-500" />
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
-              CryptoMax
-            </h1>
-          </div>
-          
-          <div className="hidden md:flex items-center space-x-4">
-            <Badge variant="outline" className="border-emerald-500/30 text-emerald-400">
-              <DollarSign className="h-3 w-3 mr-1" />
-              AUD
-            </Badge>
-            <Badge variant="outline" className="border-blue-500/30 text-blue-400">
-              LIVE
-            </Badge>
-          </div>
-        </div>
-
-        <div className="flex-1 max-w-md mx-8">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="Search cryptocurrencies..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-slate-600 focus:border-emerald-500"
-            />
-          </div>
-        </div>
-
+    <div className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700 z-40">
+      <div className="flex items-center justify-between px-4 py-3">
+        {/* Logo */}
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm">
+          <TrendingUp className="h-8 w-8 text-emerald-500" />
+          <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent">
+            CryptoMax
+          </h1>
+        </div>
+
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpenNotifications}
+            className="relative"
+          >
             <Bell className="h-4 w-4" />
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-1 -right-1 h-5 w-5 text-xs p-0 flex items-center justify-center"
+            >
+              3
+            </Badge>
           </Button>
-          <Button variant="ghost" size="sm">
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpenProfile}
+          >
+            <User className="h-4 w-4" />
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onOpenSettings}
+          >
             <Settings className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm">
-            <User className="h-4 w-4" />
+        </div>
+
+        {/* Mobile Menu Toggle */}
+        <div className="md:hidden">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
-    </header>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden border-t border-slate-700 bg-slate-900/95 backdrop-blur-sm">
+          <div className="flex flex-col p-4 space-y-2">
+            <Button
+              variant="ghost"
+              className="justify-start"
+              onClick={() => {
+                onOpenNotifications();
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <Bell className="h-4 w-4 mr-2" />
+              Notifications
+              <Badge 
+                variant="destructive" 
+                className="ml-auto h-5 w-5 text-xs p-0 flex items-center justify-center"
+              >
+                3
+              </Badge>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="justify-start"
+              onClick={() => {
+                onOpenProfile();
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <User className="h-4 w-4 mr-2" />
+              Profile
+            </Button>
+            
+            <Button
+              variant="ghost"
+              className="justify-start"
+              onClick={() => {
+                onOpenSettings();
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
