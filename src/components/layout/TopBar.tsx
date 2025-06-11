@@ -128,7 +128,7 @@ export const TopBar = ({ onOpenSettings, onOpenNotifications, onOpenProfile }: T
         </div>
       )}
 
-      <style jsx global>{`
+      <style>{`
         @keyframes slide-down {
           from {
             opacity: 0;

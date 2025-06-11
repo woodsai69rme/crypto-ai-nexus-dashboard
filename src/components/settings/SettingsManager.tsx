@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -282,7 +283,10 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   <div className="space-y-2">
                     <Label className="text-slate-300">Default Order Type</Label>
-                    <Select value={settings.defaultOrderType} onValueChange={(value) => updateSetting('defaultOrderType', value)}>
+                    <Select 
+                      value={settings.defaultOrderType} 
+                      onValueChange={(value: 'market' | 'limit' | 'stop' | 'stop-limit') => updateSetting('defaultOrderType', value)}
+                    >
                       <SelectTrigger className="bg-slate-600/50 border-slate-500">
                         <SelectValue />
                       </SelectTrigger>
@@ -308,10 +312,10 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   {settings.autoRefresh && (
                     <div className="space-y-2">
-                      <Label className="text-slate-300">Refresh Interval: {settings.refreshInterval[0]}s</Label>
+                      <Label className="text-slate-300">Refresh Interval: {settings.refreshInterval}s</Label>
                       <Slider
-                        value={settings.refreshInterval}
-                        onValueChange={(value) => updateSetting('refreshInterval', value)}
+                        value={[settings.refreshInterval]}
+                        onValueChange={(value) => updateSetting('refreshInterval', value[0])}
                         max={60}
                         min={1}
                         step={1}
@@ -344,7 +348,10 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   <div className="space-y-2">
                     <Label className="text-slate-300">Chart Type</Label>
-                    <Select value={settings.chartType} onValueChange={(value) => updateSetting('chartType', value)}>
+                    <Select 
+                      value={settings.chartType} 
+                      onValueChange={(value: 'candlestick' | 'line' | 'area' | 'ohlc') => updateSetting('chartType', value)}
+                    >
                       <SelectTrigger className="bg-slate-600/50 border-slate-500">
                         <SelectValue />
                       </SelectTrigger>
@@ -402,10 +409,10 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-slate-300">Session Timeout: {settings.sessionTimeout[0]} minutes</Label>
+                    <Label className="text-slate-300">Session Timeout: {settings.sessionTimeout} minutes</Label>
                     <Slider
-                      value={settings.sessionTimeout}
-                      onValueChange={(value) => updateSetting('sessionTimeout', value)}
+                      value={[settings.sessionTimeout]}
+                      onValueChange={(value) => updateSetting('sessionTimeout', value[0])}
                       max={120}
                       min={5}
                       step={5}
