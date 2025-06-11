@@ -1,5 +1,5 @@
 
-import { EnhancedTradingChart } from './EnhancedTradingChart';
+import { TradingChart as NewTradingChart } from '@/components/charts/TradingChart';
 
 interface TradingChartProps {
   selectedSymbol: string;
@@ -8,7 +8,7 @@ interface TradingChartProps {
 
 export const TradingChart = ({ selectedSymbol, onSymbolChange }: TradingChartProps) => {
   return (
-    <EnhancedTradingChart 
+    <NewTradingChart 
       selectedSymbol={selectedSymbol} 
       onSymbolChange={onSymbolChange}
     />

@@ -1,13 +1,11 @@
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PortfolioChart } from '@/components/charts/PortfolioChart';
 import { 
   TrendingUp, 
   TrendingDown, 
-  PieChart, 
-  BarChart3,
   DollarSign,
   Target
 } from 'lucide-react';
@@ -71,15 +69,15 @@ export const Portfolio = () => {
   return (
     <div className="space-y-4">
       {/* Portfolio Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-4">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-emerald-500/20 rounded-lg">
               <DollarSign className="h-6 w-6 text-emerald-400" />
             </div>
-            <div>
-              <p className="text-sm text-slate-400">Total Portfolio Value</p>
-              <p className="text-2xl font-bold text-white">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-slate-400 truncate">Total Portfolio Value</p>
+              <p className="text-xl sm:text-2xl font-bold text-white truncate">
                 {formatCurrency(portfolioData.totalValue)}
               </p>
             </div>
@@ -91,13 +89,13 @@ export const Portfolio = () => {
             <div className="p-2 bg-emerald-500/20 rounded-lg">
               <TrendingUp className="h-6 w-6 text-emerald-400" />
             </div>
-            <div>
-              <p className="text-sm text-slate-400">24h Change</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-slate-400 truncate">24h Change</p>
               <div className="flex items-center space-x-2">
-                <p className="text-2xl font-bold text-emerald-400">
+                <p className="text-xl sm:text-2xl font-bold text-emerald-400">
                   +{portfolioData.totalChange.toFixed(2)}%
                 </p>
-                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400">
+                <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 text-xs">
                   {formatCurrency(portfolioData.totalChangeValue)}
                 </Badge>
               </div>
@@ -105,26 +103,29 @@ export const Portfolio = () => {
           </div>
         </Card>
 
-        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-4">
+        <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-4 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-blue-500/20 rounded-lg">
               <Target className="h-6 w-6 text-blue-400" />
             </div>
-            <div>
-              <p className="text-sm text-slate-400">Performance</p>
-              <p className="text-2xl font-bold text-blue-400">+23.7%</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm text-slate-400 truncate">Performance</p>
+              <p className="text-xl sm:text-2xl font-bold text-blue-400">+23.7%</p>
               <p className="text-xs text-slate-500">All time</p>
             </div>
           </div>
         </Card>
       </div>
 
+      {/* Portfolio Chart */}
+      <PortfolioChart />
+
       <Tabs defaultValue="holdings" className="space-y-4">
-        <TabsList className="bg-slate-800/50 border border-slate-700">
-          <TabsTrigger value="holdings">Holdings</TabsTrigger>
-          <TabsTrigger value="allocation">Allocation</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+        <TabsList className="bg-slate-800/50 border border-slate-700 grid w-full grid-cols-2 sm:grid-cols-4">
+          <TabsTrigger value="holdings" className="text-xs sm:text-sm">Holdings</TabsTrigger>
+          <TabsTrigger value="performance" className="text-xs sm:text-sm">Performance</TabsTrigger>
+          <TabsTrigger value="history" className="text-xs sm:text-sm">History</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="holdings">
@@ -133,12 +134,12 @@ export const Portfolio = () => {
               <table className="w-full">
                 <thead className="bg-slate-700/30">
                   <tr className="text-left">
-                    <th className="p-4 text-sm font-medium text-slate-300">Asset</th>
-                    <th className="p-4 text-sm font-medium text-slate-300">Holdings</th>
-                    <th className="p-4 text-sm font-medium text-slate-300">Value (AUD)</th>
-                    <th className="p-4 text-sm font-medium text-slate-300">Allocation</th>
-                    <th className="p-4 text-sm font-medium text-slate-300">24h Change</th>
-                    <th className="p-4 text-sm font-medium text-slate-300">P&L</th>
+                    <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300">Asset</th>
+                    <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300">Holdings</th>
+                    <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300">Value</th>
+                    <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300">Allocation</th>
+                    <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300">24h Change</th>
+                    <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-slate-300">P&L</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -148,55 +149,55 @@ export const Portfolio = () => {
                     
                     return (
                       <tr key={holding.symbol} className="border-b border-slate-700/50 hover:bg-slate-700/20">
-                        <td className="p-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-full flex items-center justify-center">
-                              <span className="text-sm font-bold text-white">{holding.symbol.slice(0, 2)}</span>
+                        <td className="p-3 sm:p-4">
+                          <div className="flex items-center space-x-2 sm:space-x-3">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-full flex items-center justify-center">
+                              <span className="text-xs sm:text-sm font-bold text-white">{holding.symbol.slice(0, 2)}</span>
                             </div>
-                            <div>
-                              <div className="font-medium text-white">{holding.symbol}</div>
-                              <div className="text-sm text-slate-400">{holding.name}</div>
+                            <div className="min-w-0">
+                              <div className="font-medium text-white text-sm sm:text-base">{holding.symbol}</div>
+                              <div className="text-xs sm:text-sm text-slate-400 truncate">{holding.name}</div>
                             </div>
                           </div>
                         </td>
-                        <td className="p-4">
-                          <div className="text-white font-medium">
+                        <td className="p-3 sm:p-4">
+                          <div className="text-white font-medium text-sm sm:text-base">
                             {formatCrypto(holding.amount, holding.symbol)}
                           </div>
-                          <div className="text-sm text-slate-400">
+                          <div className="text-xs sm:text-sm text-slate-400">
                             Avg: {formatCurrency(holding.avgBuyPrice)}
                           </div>
                         </td>
-                        <td className="p-4">
-                          <span className="text-white font-medium">
+                        <td className="p-3 sm:p-4">
+                          <span className="text-white font-medium text-sm sm:text-base">
                             {formatCurrency(holding.value)}
                           </span>
                         </td>
-                        <td className="p-4">
+                        <td className="p-3 sm:p-4">
                           <div className="flex items-center space-x-2">
-                            <div className="w-16 h-2 bg-slate-600 rounded-full overflow-hidden">
+                            <div className="w-12 sm:w-16 h-2 bg-slate-600 rounded-full overflow-hidden">
                               <div 
                                 className="h-full bg-emerald-500"
                                 style={{ width: `${holding.allocation}%` }}
                               />
                             </div>
-                            <span className="text-sm text-slate-300">{holding.allocation.toFixed(1)}%</span>
+                            <span className="text-xs sm:text-sm text-slate-300">{holding.allocation.toFixed(1)}%</span>
                           </div>
                         </td>
-                        <td className="p-4">
+                        <td className="p-3 sm:p-4">
                           <div className="flex items-center space-x-1">
                             {holding.change24h > 0 ? (
-                              <TrendingUp className="h-4 w-4 text-emerald-400" />
+                              <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-400" />
                             ) : (
-                              <TrendingDown className="h-4 w-4 text-red-400" />
+                              <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
                             )}
-                            <span className={`font-medium ${holding.change24h > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                            <span className={`font-medium text-xs sm:text-sm ${holding.change24h > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                               {holding.change24h > 0 ? '+' : ''}{holding.change24h.toFixed(2)}%
                             </span>
                           </div>
                         </td>
-                        <td className="p-4">
-                          <span className={`font-medium ${pnl > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                        <td className="p-3 sm:p-4">
+                          <span className={`font-medium text-xs sm:text-sm ${pnl > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {pnl > 0 ? '+' : ''}{pnl.toFixed(2)}%
                           </span>
                         </td>
@@ -209,121 +210,30 @@ export const Portfolio = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="allocation">
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h4 className="text-lg font-medium text-white">Portfolio Allocation</h4>
-              <div className="flex items-center space-x-2">
-                <PieChart className="h-5 w-5 text-emerald-400" />
-                <span className="text-sm text-slate-400">Diversification Score: 7.2/10</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Pie chart representation */}
-              <div className="relative">
-                <div className="w-64 h-64 mx-auto">
-                  <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-                    {portfolioData.holdings.map((holding, index) => {
-                      const startAngle = portfolioData.holdings
-                        .slice(0, index)
-                        .reduce((sum, h) => sum + h.allocation, 0) * 3.6;
-                      const endAngle = startAngle + holding.allocation * 3.6;
-                      const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b'];
-                      
-                      return (
-                        <circle
-                          key={holding.symbol}
-                          cx="50"
-                          cy="50"
-                          r="40"
-                          fill="none"
-                          stroke={colors[index % colors.length]}
-                          strokeWidth="10"
-                          strokeDasharray={`${holding.allocation * 2.51} 251.2`}
-                          strokeDashoffset={-startAngle * 2.51 / 3.6}
-                          className="opacity-80 hover:opacity-100 transition-opacity"
-                        />
-                      );
-                    })}
-                  </svg>
-                </div>
-              </div>
-
-              {/* Allocation breakdown */}
-              <div className="space-y-4">
-                {portfolioData.holdings.map((holding, index) => {
-                  const colors = ['bg-emerald-500', 'bg-blue-500', 'bg-purple-500', 'bg-yellow-500'];
-                  return (
-                    <div key={holding.symbol} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-4 h-4 rounded-full ${colors[index % colors.length]}`} />
-                        <span className="text-white font-medium">{holding.symbol}</span>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-white font-medium">{holding.allocation.toFixed(1)}%</div>
-                        <div className="text-sm text-slate-400">
-                          {formatCurrency(holding.value)}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="performance">
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h4 className="text-lg font-medium text-white">Performance Metrics</h4>
-              <BarChart3 className="h-5 w-5 text-emerald-400" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-4 sm:p-6">
+            <h4 className="text-lg font-medium text-white mb-4">Performance Metrics</h4>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
               {[
                 { label: 'Sharpe Ratio', value: '1.42', good: true },
                 { label: 'Max Drawdown', value: '-8.3%', good: false },
                 { label: 'Win Rate', value: '67%', good: true },
                 { label: 'Avg Return', value: '+2.1%', good: true }
               ].map((metric, index) => (
-                <div key={index} className="bg-slate-700/30 p-4 rounded-lg text-center">
-                  <div className="text-sm text-slate-400 mb-1">{metric.label}</div>
-                  <div className={`text-xl font-bold ${metric.good ? 'text-emerald-400' : 'text-red-400'}`}>
+                <div key={index} className="bg-slate-700/30 p-3 sm:p-4 rounded-lg text-center">
+                  <div className="text-xs sm:text-sm text-slate-400 mb-1">{metric.label}</div>
+                  <div className={`text-lg sm:text-xl font-bold ${metric.good ? 'text-emerald-400' : 'text-red-400'}`}>
                     {metric.value}
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Performance chart */}
-            <div className="h-64 bg-slate-900/50 rounded-lg p-4">
-              <div className="h-full flex items-end justify-center space-x-1">
-                {Array.from({ length: 30 }, (_, i) => {
-                  const height = 20 + Math.random() * 60;
-                  const isGreen = Math.random() > 0.3;
-                  return (
-                    <div
-                      key={i}
-                      className="flex-1 max-w-[8px] relative"
-                      style={{ height: `${height}%` }}
-                    >
-                      <div 
-                        className={`w-full h-full rounded-sm ${
-                          isGreen ? 'bg-emerald-500' : 'bg-red-500'
-                        } opacity-80 hover:opacity-100 transition-opacity`}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </Card>
         </TabsContent>
 
         <TabsContent value="history">
-          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-6">
+          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-4 sm:p-6">
             <h4 className="text-lg font-medium text-white mb-4">Transaction History</h4>
             <div className="space-y-3">
               {[
@@ -340,18 +250,60 @@ export const Portfolio = () => {
                         tx.type === 'buy' 
                           ? 'border-emerald-500/30 text-emerald-400' 
                           : 'border-red-500/30 text-red-400'
-                      }`}
+                      } text-xs`}
                     >
                       {tx.type.toUpperCase()}
                     </Badge>
-                    <span className="text-white font-medium">{tx.amount} {tx.asset}</span>
+                    <span className="text-white font-medium text-sm sm:text-base">{tx.amount} {tx.asset}</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-white">${tx.price}</div>
-                    <div className="text-sm text-slate-400">{tx.time}</div>
+                    <div className="text-white text-sm sm:text-base">${tx.price}</div>
+                    <div className="text-xs sm:text-sm text-slate-400">{tx.time}</div>
                   </div>
                 </div>
               ))}
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <Card className="bg-slate-800/50 backdrop-blur-sm border-slate-700 p-4 sm:p-6">
+            <h4 className="text-lg font-medium text-white mb-4">Portfolio Analytics</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <h5 className="text-sm font-medium text-slate-300 mb-3">Risk Metrics</h5>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Volatility</span>
+                    <span className="text-white">12.4%</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Beta</span>
+                    <span className="text-white">1.23</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Value at Risk</span>
+                    <span className="text-red-400">-$2,340</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h5 className="text-sm font-medium text-slate-300 mb-3">Diversification</h5>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Asset Count</span>
+                    <span className="text-white">4</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Correlation Score</span>
+                    <span className="text-yellow-400">0.67</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Diversification Ratio</span>
+                    <span className="text-emerald-400">7.2/10</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </Card>
         </TabsContent>

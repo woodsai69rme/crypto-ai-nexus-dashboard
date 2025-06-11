@@ -103,54 +103,57 @@ const Index = () => {
       <div className={`flex min-h-screen ${topPadding} ${bottomPadding}`}>
         <SidePanel />
         
-        <main className="flex-1 overflow-auto p-4 space-y-4">
-          <div className="flex items-center justify-between">
+        <main className="flex-1 overflow-auto p-2 sm:p-4 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <QuickStats />
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <Button 
                 onClick={() => setIsPaperTradingOpen(true)}
-                className={`bg-emerald-500 hover:bg-emerald-600 ${settings.animations ? 'transition-all duration-200' : ''}`}
+                className={`bg-emerald-500 hover:bg-emerald-600 text-xs sm:text-sm ${settings.animations ? 'transition-all duration-200' : ''}`}
+                size="sm"
               >
-                <Activity className="h-4 w-4 mr-2" />
+                <Activity className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Paper Trading
               </Button>
               <Button 
                 onClick={handleOpenSettings}
                 variant="outline"
-                className={`border-emerald-600 text-emerald-400 hover:bg-emerald-600/20 ${settings.animations ? 'transition-all duration-200' : ''}`}
+                size="sm"
+                className={`border-emerald-600 text-emerald-400 hover:bg-emerald-600/20 text-xs sm:text-sm ${settings.animations ? 'transition-all duration-200' : ''}`}
               >
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 Settings
               </Button>
               <Button 
                 onClick={signOut}
                 variant="outline"
-                className={`border-red-600 text-red-400 hover:bg-red-600/20 ${settings.animations ? 'transition-all duration-200' : ''}`}
+                size="sm"
+                className={`border-red-600 text-red-400 hover:bg-red-600/20 text-xs sm:text-sm ${settings.animations ? 'transition-all duration-200' : ''}`}
               >
                 Sign Out
               </Button>
             </div>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 space-y-4">
-              <TradingChart selectedSymbol={selectedSymbol} />
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            <div className="xl:col-span-2 space-y-4">
+              <TradingChart selectedSymbol={selectedSymbol} onSymbolChange={setSelectedSymbol} />
               
               <Tabs defaultValue="overview" className="space-y-4">
-                <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto gap-1 p-2">
-                  <TabsTrigger value="overview" className="text-xs">Market</TabsTrigger>
-                  <TabsTrigger value="bots" className="text-xs">AI Bots</TabsTrigger>
-                  <TabsTrigger value="advanced-bots" className="text-xs">Advanced</TabsTrigger>
-                  <TabsTrigger value="portfolio" className="text-xs">Portfolio</TabsTrigger>
-                  <TabsTrigger value="realtime" className="text-xs">Real-Time</TabsTrigger>
-                  <TabsTrigger value="defi" className="text-xs">DeFi</TabsTrigger>
-                  <TabsTrigger value="alerts" className="text-xs">Alerts</TabsTrigger>
-                  <TabsTrigger value="nft" className="text-xs">NFT</TabsTrigger>
-                  <TabsTrigger value="analytics" className="text-xs">Analytics</TabsTrigger>
-                  <TabsTrigger value="algorand" className="text-xs">Algorand</TabsTrigger>
-                  <TabsTrigger value="algo-defi" className="text-xs">Algo DeFi</TabsTrigger>
-                  <TabsTrigger value="news" className="text-xs">News</TabsTrigger>
-                  <TabsTrigger value="multichain" className="text-xs">Multi-Chain</TabsTrigger>
+                <TabsList className="bg-slate-800/50 border border-slate-700 grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-1 p-1 h-auto">
+                  <TabsTrigger value="overview" className="text-xs p-2">Market</TabsTrigger>
+                  <TabsTrigger value="bots" className="text-xs p-2">AI Bots</TabsTrigger>
+                  <TabsTrigger value="advanced-bots" className="text-xs p-2">Advanced</TabsTrigger>
+                  <TabsTrigger value="portfolio" className="text-xs p-2">Portfolio</TabsTrigger>
+                  <TabsTrigger value="realtime" className="text-xs p-2">Real-Time</TabsTrigger>
+                  <TabsTrigger value="defi" className="text-xs p-2">DeFi</TabsTrigger>
+                  <TabsTrigger value="alerts" className="text-xs p-2">Alerts</TabsTrigger>
+                  <TabsTrigger value="nft" className="text-xs p-2">NFT</TabsTrigger>
+                  <TabsTrigger value="analytics" className="text-xs p-2">Analytics</TabsTrigger>
+                  <TabsTrigger value="algorand" className="text-xs p-2">Algorand</TabsTrigger>
+                  <TabsTrigger value="algo-defi" className="text-xs p-2">Algo DeFi</TabsTrigger>
+                  <TabsTrigger value="news" className="text-xs p-2">News</TabsTrigger>
+                  <TabsTrigger value="multichain" className="text-xs p-2">Multi-Chain</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="overview">
@@ -232,3 +235,5 @@ const Index = () => {
 };
 
 export default Index;
+
+</edits_to_apply>
