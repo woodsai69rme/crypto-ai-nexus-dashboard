@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -235,5 +236,3 @@ const Index = () => {
 };
 
 export default Index;
-
-</edits_to_apply>
