@@ -1,4 +1,3 @@
-
 interface MarketData {
   symbol: string;
   name: string;
@@ -47,12 +46,25 @@ class MarketDataService {
   private orderBookCallbacks: Map<string, OrderBookCallback[]> = new Map();
   private updateInterval: NodeJS.Timeout | null = null;
   private isRealTimeActive = false;
+  private lastApiCall = 0;
+  private API_RATE_LIMIT = 10000; // 10 seconds between API calls
 
   async getMarketData(symbols?: string[]): Promise<MarketData[]> {
     const targetSymbols = symbols || ['BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD', 'DOT-AUD'];
     
+    // Check rate limiting
+    const now = Date.now();
+    if (now - this.lastApiCall < this.API_RATE_LIMIT) {
+      // Return cached data if available
+      const cachedData = targetSymbols.map(symbol => this.marketData.get(symbol)).filter(Boolean) as MarketData[];
+      if (cachedData.length > 0) {
+        console.log('Using cached market data due to rate limiting');
+        return cachedData;
+      }
+    }
+
     try {
-      // Try to fetch real data from CoinGecko
+      // Map symbols to CoinGecko IDs
       const coinGeckoIds: Record<string, string> = {
         'BTC-AUD': 'bitcoin',
         'ETH-AUD': 'ethereum',
@@ -64,6 +76,8 @@ class MarketDataService {
       const ids = targetSymbols.map(symbol => coinGeckoIds[symbol]).filter(Boolean);
       
       if (ids.length > 0) {
+        console.log('Fetching real market data from CoinGecko for:', ids);
+        
         const response = await fetch(
           `https://api.coingecko.com/api/v3/simple/price?ids=${ids.join(',')}&vs_currencies=aud&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`,
           { 
@@ -73,6 +87,8 @@ class MarketDataService {
             },
           }
         );
+
+        this.lastApiCall = now;
 
         if (response.ok) {
           const data = await response.json();
@@ -96,44 +112,52 @@ class MarketDataService {
               
               this.marketData.set(symbol, marketItem);
               marketDataArray.push(marketItem);
+              console.log(`Updated real data for ${symbol}: $${coinData.aud}`);
             }
           });
 
           if (marketDataArray.length > 0) {
+            console.log('Successfully fetched real market data for', marketDataArray.length, 'symbols');
             return marketDataArray;
           }
+        } else {
+          console.warn('CoinGecko API response not ok:', response.status, response.statusText);
         }
       }
     } catch (error) {
       console.warn('Failed to fetch real market data, using mock data:', error);
     }
 
-    // Fallback to mock data
-    return this.generateMockMarketData(targetSymbols);
+    // Fallback to mock data with realistic simulation
+    console.log('Generating realistic mock data for:', targetSymbols);
+    return this.generateRealisticMockData(targetSymbols);
   }
 
-  private generateMockMarketData(symbols: string[]): MarketData[] {
+  private generateRealisticMockData(symbols: string[]): MarketData[] {
     const mockData: MarketData[] = symbols.map(symbol => {
-      const basePrice = this.getBasePriceForSymbol(symbol);
-      const change = (Math.random() - 0.5) * 0.1;
-      const price = basePrice * (1 + change);
+      const existingData = this.marketData.get(symbol);
+      const basePrice = existingData?.price || this.getBasePriceForSymbol(symbol);
+      
+      // More realistic price movements (smaller volatility)
+      const volatility = this.getVolatilityForSymbol(symbol);
+      const change = (Math.random() - 0.5) * volatility * 2;
+      const price = Math.max(basePrice * (1 + change), 0.01);
 
-      return {
+      const marketItem: MarketData = {
         symbol,
         name: symbol.split('-')[0],
         price,
         change24h: change * basePrice,
         changePercent24h: change * 100,
-        volume24h: Math.random() * 1000000000,
-        marketCap: price * Math.random() * 1000000000,
-        high24h: price * 1.05,
-        low24h: price * 0.95,
+        volume24h: this.generateRealisticVolume(symbol),
+        marketCap: price * this.getCirculatingSupply(symbol),
+        high24h: price * (1 + Math.random() * 0.03),
+        low24h: price * (1 - Math.random() * 0.03),
         lastUpdated: new Date()
       };
-    });
 
-    mockData.forEach(data => {
-      this.marketData.set(data.symbol, data);
+      this.marketData.set(symbol, marketItem);
+      return marketItem;
     });
 
     return mockData;
@@ -141,13 +165,47 @@ class MarketDataService {
 
   private getBasePriceForSymbol(symbol: string): number {
     const basePrices: Record<string, number> = {
-      'BTC-AUD': 95000,
-      'ETH-AUD': 4800,
-      'SOL-AUD': 240,
-      'ADA-AUD': 1.5,
-      'DOT-AUD': 9.5
+      'BTC-AUD': 168000,
+      'ETH-AUD': 4290,
+      'SOL-AUD': 255,
+      'ADA-AUD': 1.11,
+      'DOT-AUD': 6.62
     };
     return basePrices[symbol] || 100;
+  }
+
+  private getVolatilityForSymbol(symbol: string): number {
+    const volatilities: Record<string, number> = {
+      'BTC-AUD': 0.02,   // 2% volatility
+      'ETH-AUD': 0.025,  // 2.5% volatility
+      'SOL-AUD': 0.04,   // 4% volatility
+      'ADA-AUD': 0.05,   // 5% volatility
+      'DOT-AUD': 0.045   // 4.5% volatility
+    };
+    return volatilities[symbol] || 0.03;
+  }
+
+  private generateRealisticVolume(symbol: string): number {
+    const baseVolumes: Record<string, number> = {
+      'BTC-AUD': 50000000000,   // 50B
+      'ETH-AUD': 30000000000,   // 30B
+      'SOL-AUD': 5000000000,    // 5B
+      'ADA-AUD': 1000000000,    // 1B
+      'DOT-AUD': 500000000      // 500M
+    };
+    const baseVolume = baseVolumes[symbol] || 100000000;
+    return baseVolume * (0.8 + Math.random() * 0.4); // ±20% variation
+  }
+
+  private getCirculatingSupply(symbol: string): number {
+    const supplies: Record<string, number> = {
+      'BTC-AUD': 19800000,
+      'ETH-AUD': 120000000,
+      'SOL-AUD': 470000000,
+      'ADA-AUD': 35000000000,
+      'DOT-AUD': 1400000000
+    };
+    return supplies[symbol] || 1000000;
   }
 
   subscribeToMarketData(callback: MarketDataCallback): () => void {
@@ -218,18 +276,19 @@ class MarketDataService {
 
   private generateMockChartData(symbol: string): CandlestickData[] {
     const data: CandlestickData[] = [];
-    const basePrice = this.getBasePriceForSymbol(symbol);
+    const basePrice = this.marketData.get(symbol)?.price || this.getBasePriceForSymbol(symbol);
     let currentPrice = basePrice;
     const now = Date.now();
 
     for (let i = 50; i >= 0; i--) {
       const timestamp = now - (i * 60 * 60 * 1000); // hourly data
       const open = currentPrice;
-      const change = (Math.random() - 0.5) * 0.05;
+      const volatility = this.getVolatilityForSymbol(symbol);
+      const change = (Math.random() - 0.5) * volatility;
       const close = open * (1 + change);
-      const high = Math.max(open, close) * (1 + Math.random() * 0.02);
-      const low = Math.min(open, close) * (1 - Math.random() * 0.02);
-      const volume = Math.random() * 1000000;
+      const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+      const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+      const volume = this.generateRealisticVolume(symbol) / 24; // Hourly volume
 
       data.push({
         timestamp,
@@ -247,29 +306,27 @@ class MarketDataService {
   }
 
   private generateMockOrderBook(symbol: string): OrderBook {
-    const basePrice = this.getBasePriceForSymbol(symbol);
+    const basePrice = this.marketData.get(symbol)?.price || this.getBasePriceForSymbol(symbol);
     const bids: OrderBookEntry[] = [];
     const asks: OrderBookEntry[] = [];
 
-    // Generate bids (buy orders)
-    for (let i = 0; i < 10; i++) {
-      const price = basePrice * (1 - (i + 1) * 0.001);
-      const quantity = Math.random() * 10;
+    // Generate more realistic order book with smaller spreads
+    for (let i = 0; i < 15; i++) {
+      const bidPrice = basePrice * (1 - (i + 1) * 0.0005); // 0.05% increments
+      const askPrice = basePrice * (1 + (i + 1) * 0.0005);
+      const bidQuantity = Math.random() * 10 + 0.1;
+      const askQuantity = Math.random() * 10 + 0.1;
+      
       bids.push({
-        price,
-        quantity,
-        total: price * quantity
+        price: bidPrice,
+        quantity: bidQuantity,
+        total: bidPrice * bidQuantity
       });
-    }
 
-    // Generate asks (sell orders)
-    for (let i = 0; i < 10; i++) {
-      const price = basePrice * (1 + (i + 1) * 0.001);
-      const quantity = Math.random() * 10;
       asks.push({
-        price,
-        quantity,
-        total: price * quantity
+        price: askPrice,
+        quantity: askQuantity,
+        total: askPrice * askQuantity
       });
     }
 
@@ -312,10 +369,13 @@ class MarketDataService {
   startRealTimeUpdates(): void {
     if (this.isRealTimeActive) return;
     
+    console.log('Starting real-time market data updates');
     this.isRealTimeActive = true;
+    
+    // Update every 30 seconds, but respect rate limiting
     this.updateInterval = setInterval(() => {
       this.updateMarketData();
-    }, 30000); // Update every 30 seconds
+    }, 30000);
   }
 
   private async updateMarketData(): Promise<void> {
@@ -325,6 +385,7 @@ class MarketDataService {
         symbols.push('BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD', 'DOT-AUD');
       }
       
+      console.log('Updating market data for symbols:', symbols);
       const updatedData = await this.getMarketData(symbols);
       
       // Notify all market data subscribers
@@ -355,6 +416,7 @@ class MarketDataService {
   }
 
   cleanup(): void {
+    console.log('Cleaning up market data service');
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
       this.updateInterval = null;
@@ -368,6 +430,13 @@ class MarketDataService {
   // Helper method to get current market data without API call
   getCurrentMarketData(): MarketData[] {
     return Array.from(this.marketData.values());
+  }
+
+  // Method to force refresh data (useful for debugging)
+  async forceRefresh(): Promise<MarketData[]> {
+    this.lastApiCall = 0; // Reset rate limiting
+    const symbols = Array.from(this.marketData.keys());
+    return this.getMarketData(symbols.length > 0 ? symbols : undefined);
   }
 }
 

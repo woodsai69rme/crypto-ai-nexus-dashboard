@@ -98,7 +98,7 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
   if (!settings.newsTickerEnabled) return null;
 
   return (
-    <div className="fixed top-16 left-0 right-0 z-40 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700">
+    <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-800/95 backdrop-blur-sm border-t border-slate-700">
       <div className="overflow-hidden">
         <div 
           className={`flex ${settings.animations ? 'transition-transform duration-1000 ease-in-out' : ''}`}

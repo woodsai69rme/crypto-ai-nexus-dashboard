@@ -39,8 +39,9 @@ const Index = () => {
   const [isPaperTradingOpen, setIsPaperTradingOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-  // Calculate dynamic top padding based on enabled components
-  const topPadding = settings.newsTickerEnabled ? 'pt-32' : 'pt-16'; // TopBar (64px) + NewsTicker (64px) or just TopBar
+  // TopBar only - no news ticker padding
+  const topPadding = 'pt-16';
+  const bottomPadding = settings.newsTickerEnabled ? 'pb-20' : 'pb-4';
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -99,9 +100,7 @@ const Index = () => {
         onOpenProfile={handleOpenProfile}
       />
       
-      <NewsTicker onOpenSettings={handleOpenSettings} />
-      
-      <div className={`flex min-h-screen ${topPadding}`}>
+      <div className={`flex min-h-screen ${topPadding} ${bottomPadding}`}>
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
@@ -215,6 +214,9 @@ const Index = () => {
           </div>
         </main>
       </div>
+
+      {/* Move NewsTicker to bottom */}
+      <NewsTicker onOpenSettings={handleOpenSettings} />
 
       <PaperTradingDashboard 
         isOpen={isPaperTradingOpen}
