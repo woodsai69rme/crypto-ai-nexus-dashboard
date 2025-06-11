@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSettings } from '@/contexts/SettingsContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { MarketOverview } from '@/components/trading/MarketOverview';
@@ -25,30 +25,29 @@ import { CryptoNews } from '@/components/trading/CryptoNews';
 import { MultiChainTracker } from '@/components/trading/MultiChainTracker';
 import { PaperTradingDashboard } from '@/components/trading/PaperTradingDashboard';
 import { SettingsManager } from '@/components/settings/SettingsManager';
+import { VisualEffects } from '@/components/effects/VisualEffects';
 import { Activity, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { marketDataService } from '@/services/marketDataService';
 
 const Index = () => {
   const { signOut } = useAuth();
+  const { settings } = useSettings();
   const { toast } = useToast();
   const [selectedSymbol, setSelectedSymbol] = useState('BTC-AUD');
   const [isLoading, setIsLoading] = useState(true);
   const [isPaperTradingOpen, setIsPaperTradingOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
+  // Calculate dynamic top padding based on enabled components
+  const topPadding = settings.newsTickerEnabled ? 'pt-32' : 'pt-16'; // TopBar (64px) + NewsTicker (64px) or just TopBar
+
   useEffect(() => {
-    // Initialize the application
     const initializeApp = async () => {
       try {
-        // Start real-time market data updates
         marketDataService.startRealTimeUpdates();
-        
-        // Load initial market data
         const symbols = ['BTC-AUD', 'ETH-AUD', 'SOL-AUD', 'ADA-AUD', 'DOT-AUD'];
         await marketDataService.getMarketData(symbols);
-        
-        // Simulate app initialization delay
         setTimeout(() => setIsLoading(false), 1500);
       } catch (error) {
         console.error('Error initializing app:', error);
@@ -57,11 +56,7 @@ const Index = () => {
     };
 
     initializeApp();
-
-    // Cleanup on unmount
-    return () => {
-      marketDataService.cleanup();
-    };
+    return () => marketDataService.cleanup();
   }, []);
 
   const handleOpenSettings = () => {
@@ -86,7 +81,7 @@ const Index = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto"></div>
+          <div className={`animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto ${settings.animations ? '' : 'animate-none'}`}></div>
           <h2 className="text-2xl font-bold text-white">Loading CryptoMax Dashboard</h2>
           <p className="text-slate-300">Initializing real-time market data...</p>
         </div>
@@ -95,15 +90,18 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white relative">
+      <VisualEffects />
+      
       <TopBar 
         onOpenSettings={handleOpenSettings}
         onOpenNotifications={handleOpenNotifications}
         onOpenProfile={handleOpenProfile}
       />
+      
       <NewsTicker onOpenSettings={handleOpenSettings} />
       
-      <div className="flex h-screen" style={{ paddingTop: '120px' }}>
+      <div className={`flex min-h-screen ${topPadding}`}>
         <SidePanel />
         
         <main className="flex-1 overflow-auto p-4 space-y-4">
@@ -112,7 +110,7 @@ const Index = () => {
             <div className="flex items-center space-x-3">
               <Button 
                 onClick={() => setIsPaperTradingOpen(true)}
-                className="bg-emerald-500 hover:bg-emerald-600"
+                className={`bg-emerald-500 hover:bg-emerald-600 ${settings.animations ? 'transition-all duration-200' : ''}`}
               >
                 <Activity className="h-4 w-4 mr-2" />
                 Paper Trading
@@ -120,7 +118,7 @@ const Index = () => {
               <Button 
                 onClick={handleOpenSettings}
                 variant="outline"
-                className="border-emerald-600 text-emerald-400 hover:bg-emerald-600/20"
+                className={`border-emerald-600 text-emerald-400 hover:bg-emerald-600/20 ${settings.animations ? 'transition-all duration-200' : ''}`}
               >
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
@@ -128,7 +126,7 @@ const Index = () => {
               <Button 
                 onClick={signOut}
                 variant="outline"
-                className="border-red-600 text-red-400 hover:bg-red-600/20"
+                className={`border-red-600 text-red-400 hover:bg-red-600/20 ${settings.animations ? 'transition-all duration-200' : ''}`}
               >
                 Sign Out
               </Button>

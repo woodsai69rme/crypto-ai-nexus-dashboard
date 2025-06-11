@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
+import { useSettings } from '@/contexts/SettingsContext';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Settings, 
   Bell, 
@@ -15,7 +16,10 @@ import {
   Palette, 
   Globe, 
   DollarSign,
-  X
+  X,
+  Volume2,
+  Eye,
+  Zap
 } from 'lucide-react';
 
 interface SettingsManagerProps {
@@ -24,44 +28,23 @@ interface SettingsManagerProps {
 }
 
 export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
-  const [settings, setSettings] = useState({
-    // General Settings
-    theme: 'dark',
-    language: 'en',
-    currency: 'AUD',
-    timezone: 'Australia/Sydney',
-    
-    // Notifications
-    emailNotifications: true,
-    pushNotifications: true,
-    priceAlerts: true,
-    tradingAlerts: true,
-    soundEnabled: true,
-    soundVolume: [70],
-    
-    // Trading
-    confirmTrades: true,
-    defaultOrderType: 'market',
-    autoRefresh: true,
-    refreshInterval: [5],
-    
-    // Display
-    showAdvancedCharts: true,
-    chartType: 'candlestick',
-    showGrid: true,
-    animations: true,
-    
-    // Security
-    twoFactorEnabled: false,
-    sessionTimeout: [30],
-    shareAnalytics: false
-  });
+  const { settings, updateSetting, resetSettings } = useSettings();
+  const { toast } = useToast();
 
-  const updateSetting = (key: string, value: any) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
+  const handleSave = () => {
+    toast({
+      title: "Settings Saved",
+      description: "Your preferences have been saved successfully.",
+    });
+    onClose();
+  };
+
+  const handleReset = () => {
+    resetSettings();
+    toast({
+      title: "Settings Reset",
+      description: "All settings have been reset to defaults.",
+    });
   };
 
   if (!isOpen) return null;
@@ -81,11 +64,12 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
         <div className="overflow-auto max-h-[calc(90vh-140px)]">
           <Tabs defaultValue="general" className="p-6">
-            <TabsList className="grid w-full grid-cols-5 bg-slate-700/50 mb-6">
+            <TabsList className="grid w-full grid-cols-6 bg-slate-700/50 mb-6">
               <TabsTrigger value="general">General</TabsTrigger>
               <TabsTrigger value="notifications">Alerts</TabsTrigger>
               <TabsTrigger value="trading">Trading</TabsTrigger>
               <TabsTrigger value="display">Display</TabsTrigger>
+              <TabsTrigger value="effects">Effects</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
             </TabsList>
 
@@ -99,7 +83,7 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-slate-300">Theme</Label>
-                    <Select value={settings.theme} onValueChange={(value) => updateSetting('theme', value)}>
+                    <Select value={settings.theme} onValueChange={(value: 'dark' | 'light' | 'auto') => updateSetting('theme', value)}>
                       <SelectTrigger className="bg-slate-600/50 border-slate-500">
                         <SelectValue />
                       </SelectTrigger>
@@ -113,7 +97,7 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   <div className="space-y-2">
                     <Label className="text-slate-300">Language</Label>
-                    <Select value={settings.language} onValueChange={(value) => updateSetting('language', value)}>
+                    <Select value={settings.language} onValueChange={(value: 'en' | 'es' | 'fr' | 'de') => updateSetting('language', value)}>
                       <SelectTrigger className="bg-slate-600/50 border-slate-500">
                         <SelectValue />
                       </SelectTrigger>
@@ -128,7 +112,7 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   <div className="space-y-2">
                     <Label className="text-slate-300">Default Currency</Label>
-                    <Select value={settings.currency} onValueChange={(value) => updateSetting('currency', value)}>
+                    <Select value={settings.currency} onValueChange={(value: 'AUD' | 'USD' | 'EUR' | 'GBP') => updateSetting('currency', value)}>
                       <SelectTrigger className="bg-slate-600/50 border-slate-500">
                         <SelectValue />
                       </SelectTrigger>
@@ -191,17 +175,6 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-slate-300">Price Alerts</Label>
-                      <p className="text-sm text-slate-400">Get notified when prices reach target levels</p>
-                    </div>
-                    <Switch 
-                      checked={settings.priceAlerts}
-                      onCheckedChange={(checked) => updateSetting('priceAlerts', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
                       <Label className="text-slate-300">Sound Notifications</Label>
                       <p className="text-sm text-slate-400">Play sounds for important alerts</p>
                     </div>
@@ -213,12 +186,73 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
 
                   {settings.soundEnabled && (
                     <div className="space-y-2">
-                      <Label className="text-slate-300">Sound Volume: {settings.soundVolume[0]}%</Label>
+                      <Label className="text-slate-300 flex items-center">
+                        <Volume2 className="h-4 w-4 mr-2" />
+                        Sound Volume: {settings.soundVolume}%
+                      </Label>
                       <Slider
-                        value={settings.soundVolume}
-                        onValueChange={(value) => updateSetting('soundVolume', value)}
+                        value={[settings.soundVolume]}
+                        onValueChange={(value) => updateSetting('soundVolume', value[0])}
                         max={100}
                         step={5}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+                </div>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="effects" className="space-y-6">
+              <Card className="p-6 bg-slate-700/30 border-slate-600">
+                <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+                  <Zap className="h-5 w-5 mr-2 text-emerald-400" />
+                  Visual Effects & News
+                </h3>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-slate-300">Visual Effects</Label>
+                      <p className="text-sm text-slate-400">Enable flames, lightning, and particle effects</p>
+                    </div>
+                    <Switch 
+                      checked={settings.visualEffects}
+                      onCheckedChange={(checked) => updateSetting('visualEffects', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-slate-300">Animations</Label>
+                      <p className="text-sm text-slate-400">Enable smooth transitions and animations</p>
+                    </div>
+                    <Switch 
+                      checked={settings.animations}
+                      onCheckedChange={(checked) => updateSetting('animations', checked)}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-slate-300">News Ticker</Label>
+                      <p className="text-sm text-slate-400">Show scrolling news ticker</p>
+                    </div>
+                    <Switch 
+                      checked={settings.newsTickerEnabled}
+                      onCheckedChange={(checked) => updateSetting('newsTickerEnabled', checked)}
+                    />
+                  </div>
+
+                  {settings.newsTickerEnabled && (
+                    <div className="space-y-2">
+                      <Label className="text-slate-300">News Ticker Speed: {settings.newsTickerSpeed}ms</Label>
+                      <Slider
+                        value={[settings.newsTickerSpeed]}
+                        onValueChange={(value) => updateSetting('newsTickerSpeed', value[0])}
+                        max={10000}
+                        min={1000}
+                        step={500}
                         className="w-full"
                       />
                     </div>
@@ -395,13 +429,18 @@ export const SettingsManager = ({ isOpen, onClose }: SettingsManagerProps) => {
           </Tabs>
         </div>
 
-        <div className="flex justify-end space-x-3 p-6 border-t border-slate-700">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
+        <div className="flex justify-between p-6 border-t border-slate-700">
+          <Button variant="outline" onClick={handleReset} className="border-red-600 text-red-400 hover:bg-red-600/20">
+            Reset to Defaults
           </Button>
-          <Button className="bg-emerald-500 hover:bg-emerald-600">
-            Save Settings
-          </Button>
+          <div className="flex space-x-3">
+            <Button variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} className="bg-emerald-500 hover:bg-emerald-600">
+              Save Settings
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

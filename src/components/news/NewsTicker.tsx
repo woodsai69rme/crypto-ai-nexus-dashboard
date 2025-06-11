@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Settings, Pause, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useSettings } from '@/contexts/SettingsContext';
+import { FlameIcon } from '@/components/effects/VisualEffects';
 
 interface NewsItem {
   id: string;
@@ -16,6 +18,7 @@ interface NewsTickerProps {
 }
 
 export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
+  const { settings, updateSetting } = useSettings();
   const [news, setNews] = useState<NewsItem[]>([
     {
       id: '1',
@@ -55,23 +58,21 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
   ]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [speed, setSpeed] = useState(4000);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    if (!settings.newsTickerEnabled || settings.newsTickerPaused) return;
     
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % news.length);
-    }, speed);
+    }, settings.newsTickerSpeed);
 
     return () => clearInterval(interval);
-  }, [news.length, isPlaying, speed]);
+  }, [news.length, settings.newsTickerEnabled, settings.newsTickerPaused, settings.newsTickerSpeed]);
 
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
       case 'positive':
-        return <TrendingUp className="h-4 w-4 text-emerald-400" />;
+        return <FlameIcon className="h-4 w-4" trending={true} />;
       case 'negative':
         return <TrendingDown className="h-4 w-4 text-red-400" />;
       default:
@@ -91,14 +92,16 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
   };
 
   const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
+    updateSetting('newsTickerPaused', !settings.newsTickerPaused);
   };
 
+  if (!settings.newsTickerEnabled) return null;
+
   return (
-    <div className="fixed top-16 left-0 right-0 z-30 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700">
+    <div className="fixed top-16 left-0 right-0 z-40 bg-slate-800/95 backdrop-blur-sm border-b border-slate-700">
       <div className="overflow-hidden">
         <div 
-          className="flex transition-transform duration-1000 ease-in-out"
+          className={`flex ${settings.animations ? 'transition-transform duration-1000 ease-in-out' : ''}`}
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {news.map((item, index) => (
@@ -106,7 +109,7 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
               key={item.id}
               className="min-w-full flex items-center justify-center py-3 px-4"
             >
-              <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg border ${getSentimentColor(item.sentiment)}`}>
+              <div className={`flex items-center space-x-3 px-4 py-2 rounded-lg border ${getSentimentColor(item.sentiment)} ${settings.animations ? 'transition-all duration-300' : ''}`}>
                 {getSentimentIcon(item.sentiment)}
                 <span className="text-sm font-medium text-white">{item.headline}</span>
                 <span className="text-xs text-slate-400">• {item.source}</span>
@@ -123,7 +126,7 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
             <button
               key={index}
               onClick={() => setCurrentIndex(index)}
-              className={`h-1 w-8 rounded-full transition-colors duration-300 ${
+              className={`h-1 w-8 rounded-full ${settings.animations ? 'transition-colors duration-300' : ''} ${
                 index === currentIndex ? 'bg-emerald-500' : 'bg-slate-600'
               }`}
             />
@@ -135,15 +138,15 @@ export const NewsTicker = ({ onOpenSettings }: NewsTickerProps) => {
             variant="ghost"
             size="sm"
             onClick={togglePlayPause}
-            className="h-6 w-6 p-0 hover:bg-slate-600/50"
+            className={`h-6 w-6 p-0 hover:bg-slate-600/50 ${settings.animations ? 'transition-all duration-200' : ''}`}
           >
-            {isPlaying ? <Pause className="h-3 w-3" /> : <Play className="h-3 w-3" />}
+            {settings.newsTickerPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={onOpenSettings}
-            className="h-6 w-6 p-0 hover:bg-slate-600/50"
+            className={`h-6 w-6 p-0 hover:bg-slate-600/50 ${settings.animations ? 'transition-all duration-200' : ''}`}
           >
             <Settings className="h-3 w-3" />
           </Button>
