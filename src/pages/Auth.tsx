@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,29 +8,74 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, TrendingUp, Shield, Zap } from 'lucide-react';
+import { Eye, EyeOff, TrendingUp, Shield, Zap, AlertCircle } from 'lucide-react';
+import { validateEmail, validatePassword, sanitizeInput } from '@/utils/validation';
 
 export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [activeTab, setActiveTab] = useState<'signup' | 'signin'>('signup');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
   
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, user } = useAuth();
   const { toast } = useToast();
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      window.location.href = '/';
+    }
+  }, [user]);
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!validateEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (activeTab === 'signup') {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.errors[0];
+      }
+
+      if (formData.password !== formData.confirmPassword) {
+        newErrors.confirmPassword = 'Passwords do not match';
+      }
+    } else {
+      if (!formData.password) {
+        newErrors.password = 'Password is required';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: sanitizeInput(value)
+    }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
     setIsLoading(true);
 
     try {
@@ -49,6 +94,7 @@ export default function Auth() {
         });
       }
     } catch (error) {
+      console.error('Sign in error:', error);
       toast({
         title: "Login Error",
         description: "An unexpected error occurred. Please try again.",
@@ -61,27 +107,10 @@ export default function Auth() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) return;
+
     setIsLoading(true);
-
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Password Mismatch",
-        description: "Passwords do not match. Please try again.",
-        variant: "destructive"
-      });
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast({
-        title: "Password Too Short",
-        description: "Password must be at least 8 characters long.",
-        variant: "destructive"
-      });
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const { error } = await signUp(formData.email, formData.password);
@@ -99,6 +128,7 @@ export default function Auth() {
         });
       }
     } catch (error) {
+      console.error('Sign up error:', error);
       toast({
         title: "Registration Error",
         description: "An unexpected error occurred. Please try again.",
@@ -108,6 +138,52 @@ export default function Auth() {
       setIsLoading(false);
     }
   };
+
+  const renderInput = (
+    id: string,
+    name: string,
+    type: string,
+    placeholder: string,
+    value: string,
+    required = true,
+    showToggle = false
+  ) => (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-slate-200">
+        {name.charAt(0).toUpperCase() + name.slice(1)}
+      </Label>
+      <div className="relative">
+        <Input
+          id={id}
+          name={name}
+          type={showToggle && showPassword ? "text" : type}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleInputChange}
+          required={required}
+          disabled={isLoading}
+          className={`bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 ${
+            showToggle ? 'pr-10' : ''
+          } ${errors[name] ? 'border-red-500' : ''}`}
+        />
+        {showToggle && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200"
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        )}
+      </div>
+      {errors[name] && (
+        <div className="flex items-center space-x-1 text-red-400 text-sm">
+          <AlertCircle size={16} />
+          <span>{errors[name]}</span>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
@@ -181,83 +257,48 @@ export default function Auth() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="signup" className="w-full">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signup' | 'signin')} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
-                  <TabsTrigger value="signup" data-testid="signup-tab">Sign Up</TabsTrigger>
+                  <TabsTrigger value="signup">Sign Up</TabsTrigger>
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="signup">
                   <form onSubmit={handleSignUp} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-email" className="text-slate-200">Email</Label>
-                      <Input
-                        id="signup-email"
-                        name="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        disabled={isLoading}
-                        data-testid="email-input"
-                        className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                      />
-                    </div>
+                    {renderInput(
+                      'signup-email',
+                      'email',
+                      'email',
+                      'your@email.com',
+                      formData.email
+                    )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-password" className="text-slate-200">Password</Label>
-                      <div className="relative">
-                        <Input
-                          id="signup-password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Create a strong password"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          required
-                          disabled={isLoading}
-                          data-testid="password-input"
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200"
-                        >
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                      </div>
-                      <p className="text-xs text-slate-400">
-                        Must be at least 8 characters long
-                      </p>
-                    </div>
+                    {renderInput(
+                      'signup-password',
+                      'password',
+                      'password',
+                      'Create a strong password',
+                      formData.password,
+                      true,
+                      true
+                    )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="confirm-password" className="text-slate-200">Confirm Password</Label>
-                      <Input
-                        id="confirm-password"
-                        name="confirmPassword"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        required
-                        disabled={isLoading}
-                        data-testid="confirm-password-input"
-                        className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                      />
-                    </div>
+                    {renderInput(
+                      'confirm-password',
+                      'confirmPassword',
+                      'password',
+                      'Confirm your password',
+                      formData.confirmPassword,
+                      true,
+                      true
+                    )}
 
                     <Button 
                       type="submit" 
                       className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
                       disabled={isLoading}
-                      data-testid="signup-button"
                     >
-                      {isLoading ? (
-                        <LoadingSpinner size="sm" className="mr-2" />
-                      ) : null}
+                      {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
                       Create Account
                     </Button>
 
@@ -269,46 +310,23 @@ export default function Auth() {
 
                 <TabsContent value="signin">
                   <form onSubmit={handleSignIn} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-email" className="text-slate-200">Email</Label>
-                      <Input
-                        id="signin-email"
-                        name="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        disabled={isLoading}
-                        data-testid="email-input"
-                        className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
-                      />
-                    </div>
+                    {renderInput(
+                      'signin-email',
+                      'email',
+                      'email',
+                      'your@email.com',
+                      formData.email
+                    )}
 
-                    <div className="space-y-2">
-                      <Label htmlFor="signin-password" className="text-slate-200">Password</Label>
-                      <div className="relative">
-                        <Input
-                          id="signin-password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Enter your password"
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          required
-                          disabled={isLoading}
-                          data-testid="password-input"
-                          className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-400 pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-200"
-                        >
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                        </button>
-                      </div>
-                    </div>
+                    {renderInput(
+                      'signin-password',
+                      'password',
+                      'password',
+                      'Enter your password',
+                      formData.password,
+                      true,
+                      true
+                    )}
 
                     <div className="flex items-center justify-between">
                       <label className="flex items-center space-x-2 text-sm text-slate-300">
@@ -327,11 +345,8 @@ export default function Auth() {
                       type="submit" 
                       className="w-full bg-emerald-500 hover:bg-emerald-600 text-white"
                       disabled={isLoading}
-                      data-testid="login-button"
                     >
-                      {isLoading ? (
-                        <LoadingSpinner size="sm" className="mr-2" />
-                      ) : null}
+                      {isLoading && <LoadingSpinner size="sm" className="mr-2" />}
                       Sign In
                     </Button>
                   </form>
