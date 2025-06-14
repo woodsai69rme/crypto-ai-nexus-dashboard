@@ -8,6 +8,9 @@ import type { Database } from '@/integrations/supabase/types';
 type DatabaseOrder = Database['public']['Tables']['orders']['Row'];
 type DatabaseOrderInsert = Database['public']['Tables']['orders']['Insert'];
 
+// Status allowed: "pending" | "filled" | "cancelled" | "rejected"
+type OrderStatus = 'pending' | 'filled' | 'cancelled' | 'rejected';
+
 interface Order {
   id: string;
   user_id: string;
@@ -17,7 +20,7 @@ interface Order {
   type: 'market' | 'limit' | 'stop_loss';
   quantity: number;
   price?: number;
-  status: 'pending' | 'filled' | 'cancelled' | 'partial';
+  status: OrderStatus;
   filled_quantity: number;
   average_fill_price: number;
   fees: number;
@@ -43,7 +46,12 @@ export const useOrders = () => {
     type: dbOrder.type as 'market' | 'limit' | 'stop_loss',
     quantity: Number(dbOrder.quantity),
     price: dbOrder.price ? Number(dbOrder.price) : undefined,
-    status: dbOrder.status as 'pending' | 'filled' | 'cancelled' | 'partial',
+    // Ensure the status never returns "partial", convert to "pending" or valid fallback
+    status: (
+      dbOrder.status === "partial"
+        ? "pending"
+        : (dbOrder.status as OrderStatus)
+    ),
     filled_quantity: Number(dbOrder.filled_quantity || 0),
     average_fill_price: Number(dbOrder.average_fill_price || 0),
     fees: Number(dbOrder.fees || 0),
