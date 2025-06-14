@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { apiService } from '@/services/apiService';
@@ -37,28 +36,43 @@ export const useOrders = () => {
   const [error, setError] = useState<string | null>(null);
 
   // Convert database order to our local Order type
-  const convertDatabaseOrder = (dbOrder: DatabaseOrder): Order => ({
-    id: dbOrder.id,
-    user_id: dbOrder.user_id,
-    portfolio_id: dbOrder.portfolio_id || '',
-    symbol: dbOrder.symbol,
-    side: dbOrder.side as 'buy' | 'sell',
-    type: dbOrder.type as 'market' | 'limit' | 'stop_loss',
-    quantity: Number(dbOrder.quantity),
-    price: dbOrder.price ? Number(dbOrder.price) : undefined,
-    // Ensure the status never returns "partial", convert to "pending" or valid fallback
-    status: (
-      dbOrder.status === "partial"
-        ? "pending"
-        : (dbOrder.status as OrderStatus)
-    ),
-    filled_quantity: Number(dbOrder.filled_quantity || 0),
-    average_fill_price: Number(dbOrder.average_fill_price || 0),
-    fees: Number(dbOrder.fees || 0),
-    created_at: dbOrder.created_at || '',
-    filled_at: dbOrder.filled_at || undefined,
-    cancelled_at: dbOrder.cancelled_at || undefined,
-  });
+  const convertDatabaseOrder = (dbOrder: DatabaseOrder): Order => {
+    // Accept any string as dbOrder.status to avoid TS2367
+    let status: OrderStatus;
+    if (typeof dbOrder.status === 'string') {
+      if (
+        dbOrder.status === 'pending' ||
+        dbOrder.status === 'filled' ||
+        dbOrder.status === 'cancelled' ||
+        dbOrder.status === 'rejected'
+      ) {
+        status = dbOrder.status;
+      } else {
+        // For any legacy status (like 'partial'), fallback to 'pending'
+        status = 'pending';
+      }
+    } else {
+      status = 'pending';
+    }
+
+    return {
+      id: dbOrder.id,
+      user_id: dbOrder.user_id,
+      portfolio_id: dbOrder.portfolio_id || '',
+      symbol: dbOrder.symbol,
+      side: dbOrder.side as 'buy' | 'sell',
+      type: dbOrder.type as 'market' | 'limit' | 'stop_loss',
+      quantity: Number(dbOrder.quantity),
+      price: dbOrder.price ? Number(dbOrder.price) : undefined,
+      status,
+      filled_quantity: Number(dbOrder.filled_quantity || 0),
+      average_fill_price: Number(dbOrder.average_fill_price || 0),
+      fees: Number(dbOrder.fees || 0),
+      created_at: dbOrder.created_at || '',
+      filled_at: dbOrder.filled_at || undefined,
+      cancelled_at: dbOrder.cancelled_at || undefined,
+    };
+  };
 
   useEffect(() => {
     if (!user) {
