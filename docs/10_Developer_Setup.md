@@ -1,482 +1,367 @@
 
-# Developer Setup Guide - CryptoMax
-
-## Overview
-This guide provides step-by-step instructions for setting up a complete development environment for the CryptoMax platform, including local development, testing, and deployment preparation.
+# Developer Setup - CryptoMax
 
 ## Prerequisites
 
-### System Requirements
-- **Operating System**: macOS, Windows 10+, or Linux (Ubuntu 20.04+ recommended)
-- **Node.js**: Version 18.0+ (LTS recommended)
-- **Package Manager**: npm 9+ or Bun 1.0+
-- **Git**: Version 2.30+
-- **VS Code**: Latest version (recommended IDE)
+### Required Software
+- **Node.js** v18+ (LTS recommended)
+- **npm** v9+ or **yarn** v1.22+
+- **Git** for version control
+- **VS Code** (recommended editor)
 
-### Account Requirements
-- **GitHub Account**: For code repository access
-- **Supabase Account**: For backend services
-- **Vercel Account**: For deployment (optional)
+### Optional Tools
+- **Supabase CLI** for local development
+- **Docker** for containerized development
+- **Postman** for API testing
 
-## Quick Start
+## Environment Setup
 
-### 1. Repository Setup
+### 1. Clone Repository
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/cryptomax-platform.git
-cd cryptomax-platform
+git clone <repository-url>
+cd cryptomax
+```
 
-# Install dependencies
-bun install
-# or
+### 2. Install Dependencies
+```bash
 npm install
-
-# Copy environment template
-cp .env.example .env.local
-
-# Start development server
-bun dev
 # or
-npm run dev
+yarn install
 ```
 
-The application will be available at `http://localhost:5173`
-
-## Detailed Setup
-
-### 1. Environment Configuration
-
-#### Required Environment Variables
-Create a `.env.local` file in the project root:
-
+### 3. Environment Configuration
+Create `.env.local` file in project root:
 ```bash
-# Supabase Configuration
-VITE_SUPABASE_URL=your-supabase-project-url
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
-
-# API Keys (Optional for development)
-VITE_COINGECKO_API_KEY=your-coingecko-api-key
-VITE_NEWS_API_KEY=your-news-api-key
-
-# Development Settings
-VITE_ENV=development
-VITE_API_BASE_URL=http://localhost:54321
-VITE_DEBUG_MODE=true
+VITE_SUPABASE_URL=https://xtjowrewuuhmnvmuilcz.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-#### Supabase Setup
-1. Create a new Supabase project at [supabase.com](https://supabase.com)
-2. Get your project URL and anon key from Settings > API
-3. Import the database schema:
+### 4. Database Setup
 ```bash
-# Using Supabase CLI
-supabase db reset
-```
+# Install Supabase CLI
+npm install -g @supabase/cli
 
-### 2. Database Setup
+# Initialize Supabase
+supabase init
 
-#### Install Supabase CLI
-```bash
-# macOS
-brew install supabase/tap/supabase
-
-# Windows (using Chocolatey)
-choco install supabase
-
-# Linux
-curl -fsSL https://supabase.com/install.sh | sh
-```
-
-#### Initialize Local Database
-```bash
-# Start local Supabase services
+# Start local Supabase stack
 supabase start
 
-# Apply migrations
+# Run migrations
 supabase db reset
-
-# Generate TypeScript types
-supabase gen types typescript --local > src/integrations/supabase/types.ts
 ```
 
-#### Seed Development Data
+## Development Workflow
+
+### Start Development Server
 ```bash
-# Run seed script
-supabase db reset --with-seed
+npm run dev
+# or
+yarn dev
 ```
 
-### 3. IDE Setup (VS Code)
+Access the application at `http://localhost:5173`
 
-#### Required Extensions
-Install these VS Code extensions:
+### Available Scripts
+```bash
+# Development
+npm run dev          # Start dev server
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run type-check   # TypeScript type checking
 
-```json
-{
-  "recommendations": [
-    "bradlc.vscode-tailwindcss",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "ms-vscode.vscode-typescript-next",
-    "formulahendry.auto-rename-tag",
-    "christian-kohler.path-intellisense",
-    "ms-vscode.vscode-json",
-    "supabase.supabase-sql"
-  ]
-}
+# Database
+npm run db:reset     # Reset database
+npm run db:migrate   # Run migrations
+npm run db:seed      # Seed test data
+
+# Testing
+npm run test         # Run tests
+npm run test:watch   # Run tests in watch mode
+npm run test:coverage # Generate coverage report
 ```
 
-#### VS Code Settings
-Create `.vscode/settings.json`:
+## Project Structure
 
+```
+cryptomax/
+├── public/                 # Static assets
+├── src/
+│   ├── components/        # React components
+│   │   ├── common/       # Shared components
+│   │   ├── trading/      # Trading features
+│   │   ├── portfolio/    # Portfolio management
+│   │   ├── auth/         # Authentication
+│   │   └── layout/       # Layout components
+│   ├── hooks/            # Custom React hooks
+│   ├── services/         # API services
+│   ├── utils/            # Utility functions
+│   ├── contexts/         # React contexts
+│   ├── pages/            # Page components
+│   └── types/            # TypeScript definitions
+├── docs/                 # Documentation
+├── supabase/            # Database migrations
+└── tests/               # Test files
+```
+
+## Code Style & Standards
+
+### TypeScript Configuration
 ```json
 {
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "tailwindCSS.experimental.classRegex": [
-    "cn\\(([^)]*)\\)"
-  ],
-  "files.associations": {
-    "*.css": "tailwindcss"
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
   }
 }
 ```
 
-#### Launch Configuration
-Create `.vscode/launch.json`:
-
+### ESLint Rules
 ```json
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Launch Chrome",
-      "request": "launch",
-      "type": "chrome",
-      "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}/src"
-    }
-  ]
+  "extends": [
+    "@typescript-eslint/recommended",
+    "react-hooks/recommended"
+  ],
+  "rules": {
+    "react-refresh/only-export-components": "warn",
+    "@typescript-eslint/no-unused-vars": "error",
+    "react-hooks/exhaustive-deps": "error"
+  }
 }
 ```
 
-### 4. Development Tools
-
-#### ESLint Configuration
-The project uses ESLint for code quality. Configuration in `eslint.config.js`:
-
-```javascript
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import tseslint from 'typescript-eslint'
-
-export default tseslint.config(
-  { ignores: ['dist'] },
-  {
-    extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-    },
-    plugins: {
-      'react-hooks': reactHooks,
-      'react-refresh': reactRefresh,
-    },
-    rules: {
-      ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-    },
-  },
-)
-```
-
-#### Prettier Configuration
-Create `.prettierrc`:
-
+### Prettier Configuration
 ```json
 {
   "semi": true,
   "trailingComma": "es5",
   "singleQuote": true,
   "printWidth": 80,
-  "tabWidth": 2,
-  "useTabs": false
+  "tabWidth": 2
 }
 ```
 
-#### Git Hooks with Husky
-```bash
-# Install husky
-bun add -D husky lint-staged
+## Component Development Guidelines
 
-# Setup pre-commit hooks
-npx husky init
-echo "npx lint-staged" > .husky/pre-commit
-```
+### Component Structure
+```typescript
+// ComponentName.tsx
+import { FC } from 'react';
 
-Create `.lintstagedrc`:
-
-```json
-{
-  "*.{ts,tsx}": ["eslint --fix", "prettier --write"],
-  "*.{css,scss,md}": ["prettier --write"]
+interface ComponentNameProps {
+  // Props interface
 }
-```
 
-### 5. Testing Setup
-
-#### Unit Testing with Vitest
-```bash
-# Install testing dependencies
-bun add -D vitest @testing-library/react @testing-library/jest-dom jsdom
-```
-
-Create `vitest.config.ts`:
-
-```typescript
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-})
-```
-
-Create `src/test/setup.ts`:
-
-```typescript
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
-
-// Mock Supabase
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    auth: {
-      signUp: vi.fn(),
-      signInWithPassword: vi.fn(),
-      signOut: vi.fn(),
-      onAuthStateChange: vi.fn(),
-    },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          single: vi.fn(),
-        })),
-      })),
-    })),
-  },
-}))
-```
-
-#### E2E Testing with Playwright
-```bash
-# Install Playwright
-bun add -D @playwright/test
-npx playwright install
-```
-
-Create `playwright.config.ts`:
-
-```typescript
-import { defineConfig, devices } from '@playwright/test'
-
-export default defineConfig({
-  testDir: './tests/e2e',
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
-  use: {
-    baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
-  },
-  projects: [
-    {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-  ],
-  webServer: {
-    command: 'bun dev',
-    port: 5173,
-  },
-})
-```
-
-### 6. API Development
-
-#### Supabase Edge Functions
-```bash
-# Create new edge function
-supabase functions new market-data-sync
-
-# Serve functions locally
-supabase functions serve
-
-# Deploy function
-supabase functions deploy market-data-sync
-```
-
-#### Local Development with Supabase
-```bash
-# Start all Supabase services
-supabase start
-
-# View local dashboard
-# Navigate to http://localhost:54323
-```
-
-### 7. Debugging
-
-#### Browser DevTools
-- **React DevTools**: Install browser extension
-- **Redux DevTools**: For state debugging (if using Redux)
-
-#### VS Code Debugging
-1. Set breakpoints in your code
-2. Press F5 or use the Debug view
-3. Select "Launch Chrome" configuration
-
-#### Network Debugging
-```typescript
-// Add request/response logging
-const debugRequest = (url: string, options: RequestInit) => {
-  console.log('API Request:', { url, options });
-  return fetch(url, options).then(response => {
-    console.log('API Response:', { 
-      url, 
-      status: response.status, 
-      statusText: response.statusText 
-    });
-    return response;
-  });
+export const ComponentName: FC<ComponentNameProps> = ({ 
+  // props 
+}) => {
+  // Component logic
+  
+  return (
+    // JSX
+  );
 };
 ```
 
-### 8. Performance Monitoring
+### Custom Hooks Pattern
+```typescript
+// useCustomHook.ts
+import { useState, useEffect } from 'react';
 
-#### Bundle Analysis
-```bash
-# Install bundle analyzer
-bun add -D rollup-plugin-visualizer
-
-# Generate bundle report
-bun run build
-bun run analyze
+export const useCustomHook = (param: string) => {
+  const [state, setState] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    // Effect logic
+  }, [param]);
+  
+  return { state, loading, error };
+};
 ```
 
-Add to `vite.config.ts`:
-
+### Service Layer Pattern
 ```typescript
-import { visualizer } from 'rollup-plugin-visualizer'
-
-export default defineConfig({
-  plugins: [
-    react(),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: true,
-    }),
-  ],
-})
-```
-
-#### Performance Testing
-```typescript
-// Component performance monitoring
-import { Profiler } from 'react'
-
-const onRenderCallback = (id, phase, actualDuration) => {
-  console.log('Component render:', {
-    id,
-    phase,
-    actualDuration,
-  })
+// apiService.ts
+export class APIService {
+  private baseURL = 'https://api.example.com';
+  
+  async getData(id: string) {
+    try {
+      const response = await fetch(`${this.baseURL}/data/${id}`);
+      return response.json();
+    } catch (error) {
+      throw new Error('Failed to fetch data');
+    }
+  }
 }
 
-// Wrap components for profiling
-<Profiler id="TradingChart" onRender={onRenderCallback}>
-  <TradingChart />
-</Profiler>
+export const apiService = new APIService();
 ```
 
-## Development Workflow
+## Testing Guidelines
 
-### 1. Feature Development
-```bash
-# Create feature branch
-git checkout -b feature/new-trading-bot
+### Unit Testing with Vitest
+```typescript
+// Component.test.tsx
+import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { ComponentName } from './ComponentName';
 
-# Make changes and commit
-git add .
-git commit -m "feat: add momentum trading strategy"
-
-# Push and create PR
-git push origin feature/new-trading-bot
+describe('ComponentName', () => {
+  it('renders correctly', () => {
+    render(<ComponentName />);
+    expect(screen.getByText('Expected Text')).toBeInTheDocument();
+  });
+});
 ```
 
-### 2. Code Review Process
-1. Create pull request on GitHub
-2. Ensure all checks pass (ESLint, tests, build)
-3. Request review from team members
-4. Address feedback and merge
+### Integration Testing
+```typescript
+// api.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { apiService } from './apiService';
 
-### 3. Local Testing
-```bash
-# Run unit tests
-bun test
-
-# Run E2E tests
-bun test:e2e
-
-# Type checking
-bun run type-check
-
-# Linting
-bun run lint
-
-# Format code
-bun run format
+describe('API Service', () => {
+  it('fetches data correctly', async () => {
+    const mockData = { id: '1', name: 'Test' };
+    global.fetch = vi.fn().mockResolvedValue({
+      json: () => Promise.resolve(mockData)
+    });
+    
+    const result = await apiService.getData('1');
+    expect(result).toEqual(mockData);
+  });
+});
 ```
 
-### 4. Database Changes
+## Database Development
+
+### Migration Files
+```sql
+-- migrations/001_initial_schema.sql
+CREATE TABLE public.example (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE public.example ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can manage own data" 
+ON public.example 
+FOR ALL USING (auth.uid() = user_id);
+```
+
+### Seed Data
+```sql
+-- seed.sql
+INSERT INTO public.example (name) VALUES 
+  ('Example 1'),
+  ('Example 2'),
+  ('Example 3');
+```
+
+## API Integration
+
+### Supabase Client Setup
+```typescript
+// supabase/client.ts
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+```
+
+### Query Patterns
+```typescript
+// Data fetching
+const { data, error } = await supabase
+  .from('table_name')
+  .select('*')
+  .eq('user_id', userId);
+
+// Real-time subscriptions
+const subscription = supabase
+  .channel('table-changes')
+  .on('postgres_changes', {
+    event: '*',
+    schema: 'public',
+    table: 'table_name'
+  }, (payload) => {
+    console.log('Change received!', payload);
+  })
+  .subscribe();
+```
+
+## Debugging & Development Tools
+
+### Browser DevTools
+- React Developer Tools
+- Redux DevTools (if using Redux)
+- Network tab for API debugging
+- Console for error tracking
+
+### VS Code Extensions
+- TypeScript Hero
+- ES7+ React/Redux snippets
+- Prettier
+- ESLint
+- Tailwind CSS IntelliSense
+- Error Lens
+
+### Chrome Extensions
+- React Developer Tools
+- Redux DevTools
+- Lighthouse for performance
+
+## Performance Optimization
+
+### Code Splitting
+```typescript
+// Lazy loading components
+import { lazy, Suspense } from 'react';
+
+const LazyComponent = lazy(() => import('./LazyComponent'));
+
+const App = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <LazyComponent />
+  </Suspense>
+);
+```
+
+### Bundle Analysis
 ```bash
-# Create new migration
-supabase migration new add_trading_signals_table
+# Analyze bundle size
+npm run build
+npx vite-bundle-analyzer dist
+```
 
-# Apply migration
-supabase db reset
-
-# Generate types
-supabase gen types typescript --local > src/integrations/supabase/types.ts
+### Performance Monitoring
+```typescript
+// Performance timing
+const startTime = performance.now();
+// ... operation
+const endTime = performance.now();
+console.log(`Operation took ${endTime - startTime} milliseconds`);
 ```
 
 ## Troubleshooting
@@ -487,9 +372,22 @@ supabase gen types typescript --local > src/integrations/supabase/types.ts
 ```bash
 # Kill process on port 5173
 lsof -ti:5173 | xargs kill -9
+```
 
-# Or use different port
-bun dev --port 3000
+#### Node Modules Issues
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Remove node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### TypeScript Errors
+```bash
+# Restart TypeScript server in VS Code
+Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
 ```
 
 #### Supabase Connection Issues
@@ -497,111 +395,80 @@ bun dev --port 3000
 # Check Supabase status
 supabase status
 
-# Restart services
+# Restart Supabase
 supabase stop
 supabase start
 ```
 
-#### TypeScript Errors
-```bash
-# Clear TypeScript cache
-rm -rf node_modules/.cache
-bun install
+### Debug Mode
+```typescript
+// Enable debug logging
+localStorage.setItem('debug', 'cryptomax:*');
 
-# Regenerate types
-supabase gen types typescript --local > src/integrations/supabase/types.ts
+// Custom debug logger
+const debug = (message: string, data?: any) => {
+  if (import.meta.env.DEV) {
+    console.log(`[DEBUG] ${message}`, data);
+  }
+};
 ```
 
-#### Build Failures
+## Deployment Preparation
+
+### Build Optimization
 ```bash
-# Clear build cache
-rm -rf dist
-rm -rf node_modules/.vite
-
-# Reinstall dependencies
-rm -rf node_modules
-bun install
-```
-
-### Performance Issues
-```bash
-# Check bundle size
-bun run build
-ls -la dist/
-
-# Analyze dependencies
-bun run analyze
-
-# Check for memory leaks
-node --inspect-brk node_modules/.bin/vite dev
-```
-
-## Useful Commands
-
-### Daily Development
-```bash
-# Start development server
-bun dev
-
-# Run tests in watch mode
-bun test --watch
-
-# Type check
-bun run type-check
-
-# Lint and fix
-bun run lint --fix
-
-# Format code
-bun run format
-```
-
-### Database Operations
-```bash
-# Reset database with fresh data
-supabase db reset
-
-# Create new migration
-supabase migration new migration_name
-
-# Generate types
-supabase gen types typescript --local > src/integrations/supabase/types.ts
-
-# View database
-supabase dashboard
-```
-
-### Deployment
-```bash
-# Build for production
-bun run build
+# Production build
+npm run build
 
 # Preview production build
-bun run preview
-
-# Deploy to Vercel
-vercel --prod
+npm run preview
 ```
 
-## Resources
+### Environment Variables
+```bash
+# Production environment
+VITE_SUPABASE_URL=<production_url>
+VITE_SUPABASE_ANON_KEY=<production_key>
+VITE_ENVIRONMENT=production
+```
 
-### Documentation
-- [React Documentation](https://react.dev/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Vite Guide](https://vitejs.dev/guide/)
+## Git Workflow
 
-### Community
-- [CryptoMax Development Discord](https://discord.gg/cryptomax-dev)
-- [GitHub Discussions](https://github.com/your-org/cryptomax-platform/discussions)
-- [Stack Overflow Tag: cryptomax](https://stackoverflow.com/questions/tagged/cryptomax)
+### Branch Naming
+- `feature/feature-name`
+- `bugfix/bug-description`
+- `hotfix/critical-fix`
+- `chore/maintenance-task`
 
-### Support
-- **Internal**: Slack #dev-support channel
-- **External**: dev-support@cryptomax.com.au
-- **Emergency**: engineering-on-call@cryptomax.com.au
+### Commit Messages
+```
+feat: add new trading interface
+fix: resolve portfolio calculation bug
+docs: update API documentation
+style: format trading components
+refactor: optimize market data service
+test: add portfolio tests
+chore: update dependencies
+```
+
+### Pre-commit Hooks
+```json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm test"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  }
+}
+```
 
 ---
 
-*This setup guide should get you productive quickly. For questions or improvements, please contribute to the documentation or reach out to the development team.*
+*This developer setup guide should be your starting point for contributing to CryptoMax. Update it as the project evolves.*

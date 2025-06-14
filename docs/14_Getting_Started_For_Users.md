@@ -1,422 +1,329 @@
 
 # Getting Started Guide - CryptoMax
 
-## Welcome to CryptoMax! 🚀
+## Welcome to CryptoMax 🚀
 
-CryptoMax is your comprehensive cryptocurrency trading platform that combines AI-powered automation with professional-grade tools. Whether you're a beginner or an experienced trader, this guide will help you get started quickly and safely.
+CryptoMax is Australia's most advanced AI-powered cryptocurrency trading platform. This guide will help you get started with paper trading, portfolio management, and automated AI trading bots.
 
 ## Quick Start (5 Minutes)
 
-### Step 1: Create Your Account
-1. Visit [CryptoMax Platform](https://cryptomax.lovable.app)
-2. Click **"Get Started Free"**
+### 1. Create Your Account
+1. Visit [CryptoMax.com.au](https://cryptomax.com.au)
+2. Click **"Sign Up"** in the top right
 3. Enter your email and create a secure password
 4. Verify your email address
 5. Complete the welcome survey
 
-### Step 2: Set Up Your Profile
-1. Choose your experience level (Beginner/Intermediate/Advanced)
-2. Set your default currency to AUD
-3. Select your trading goals
-4. Review and accept terms of service
+### 2. Explore with Paper Trading
+- Start with **$10,000 AUD** in virtual money
+- Practice trading without any financial risk
+- Learn the platform before investing real money
+- Test different strategies and AI bots
 
-### Step 3: Explore Paper Trading
-1. Navigate to your dashboard
-2. Your account starts with $10,000 AUD in paper money
-3. Browse the market data to see live cryptocurrency prices
-4. Try placing your first paper trade with Bitcoin
-
-### Step 4: Create Your First AI Bot
-1. Go to the **AI Bots** section
-2. Choose the **Dollar Cost Averaging (DCA)** strategy
-3. Set it to invest $50 AUD weekly in Bitcoin
-4. Activate the bot and watch it work!
-
-## Account Setup Guide
-
-### Creating a Secure Account
-
-#### Password Requirements
-- Minimum 8 characters
-- Include uppercase and lowercase letters
-- Include at least one number
-- Include at least one special character
-- Avoid common passwords or personal information
-
-#### Email Verification
-- Check your inbox for the verification email
-- Click the verification link to activate your account
-- If you don't receive the email, check your spam folder
-- Request a new verification email if needed
-
-#### Two-Factor Authentication (Recommended)
-1. Go to **Settings** → **Security**
-2. Enable 2FA using your preferred method:
-   - Authenticator app (Google Authenticator, Authy)
-   - SMS verification
-   - Email verification
-3. Save your backup codes in a secure location
-
-### Profile Configuration
-
-#### Trading Preferences
-- **Default Currency**: Set to AUD for Australian users
-- **Trading Mode**: Start with Paper Trading
-- **Risk Tolerance**: Choose Conservative, Moderate, or Aggressive
-- **Notification Preferences**: Configure alerts and updates
-
-#### Investment Goals
-- **Portfolio Growth**: Long-term wealth building
-- **Income Generation**: Regular trading profits
-- **Learning**: Education and skill development
-- **Speculation**: High-risk, high-reward strategies
+### 3. Make Your First Trade
+1. Navigate to the **Trading** tab
+2. Select a cryptocurrency (Bitcoin recommended for beginners)
+3. Choose **"Market Order"** for instant execution
+4. Enter the amount you want to invest
+5. Click **"Buy"** to execute your first trade
 
 ## Understanding the Dashboard
 
-### Main Dashboard Overview
+### Main Navigation
+- **📊 Trading**: Advanced trading interface with charts
+- **📈 Market**: Live market data and cryptocurrency overview
+- **🤖 AI Bots**: Automated trading strategies
+- **💼 Portfolio**: Your holdings and performance tracking
+- **🔔 Alerts**: Price and volume notifications
+- **📰 News**: Latest crypto news and market insights
 
-#### Portfolio Section
-- **Total Value**: Your current portfolio worth in AUD
-- **24h Change**: Daily profit/loss with percentage
-- **Asset Allocation**: Pie chart showing your holdings
-- **Recent Performance**: Historical value chart
+### Quick Stats Panel
+Located at the top of your dashboard:
+- **Total Portfolio Value**: Current value in AUD
+- **24h Change**: Daily profit/loss
+- **Best Performer**: Top gaining asset
+- **Active Bots**: Number of running AI strategies
 
-#### Market Data Section
-- **Top Cryptocurrencies**: Live prices and changes
-- **Trending Assets**: Popular trading pairs
-- **Market Sentiment**: Overall market mood indicator
-- **News Ticker**: Latest crypto news and analysis
+## Your First Week Guide
 
-#### Quick Actions
-- **Buy/Sell**: Rapid order placement
-- **Bot Manager**: AI trading bot controls
-- **Alerts**: Price and volume notifications
-- **Analytics**: Detailed performance metrics
+### Day 1: Setup & Exploration
+**Time Investment: 30 minutes**
 
-### Navigation Menu
+✅ **Complete Your Profile**
+- Add a display name
+- Set your risk tolerance (Conservative/Medium/Aggressive)
+- Choose notification preferences
 
-#### Main Sections
-- **Dashboard**: Overview and quick actions
-- **Trading**: Advanced charts and order management
-- **Portfolio**: Detailed holdings and performance
-- **AI Bots**: Automated trading strategies
-- **Analytics**: Performance and risk analysis
-- **News**: Market news and insights
-- **Settings**: Account and trading preferences
+✅ **Understand Paper Trading**
+- Paper trading uses virtual money
+- All features work exactly like real trading
+- Perfect for learning without risk
+- Switch to real trading when you're confident
 
-## Your First Trade
+✅ **Explore Market Data**
+- Browse the top cryptocurrencies
+- Check 24-hour price changes
+- Read recent news affecting the market
+- Add coins to your watchlist
 
-### Paper Trading Basics
-Paper trading lets you practice with virtual money without financial risk.
+### Day 2-3: Learn Trading Basics
+**Time Investment: 1 hour**
 
-#### Placing a Buy Order
-1. **Select a Cryptocurrency**: Choose from the market data list
-2. **Click "Trade"**: Opens the trading interface
-3. **Choose Order Type**:
-   - **Market Order**: Buy immediately at current price
-   - **Limit Order**: Buy only when price reaches your target
-4. **Enter Quantity**: Amount you want to purchase
-5. **Review Order**: Check details and fees
-6. **Confirm**: Execute your trade
+✅ **Master Order Types**
+- **Market Order**: Buy/sell immediately at current price
+- **Limit Order**: Buy/sell at a specific price
+- **Stop Loss**: Automatically sell if price drops
 
-#### Understanding Order Types
+✅ **Practice Manual Trading**
+- Start with small amounts ($100-500 AUD)
+- Try buying and selling different cryptocurrencies
+- Monitor how prices change throughout the day
+- Keep notes on what you learn
 
-**Market Orders**
-- Execute immediately at best available price
-- Guaranteed execution but price may vary slightly
-- Best for: Quick trades when price isn't critical
+✅ **Use Trading Tools**
+- Study price charts and trends
+- Set up price alerts for your favorite coins
+- Read AI-generated market insights
+- Follow news that affects prices
 
-**Limit Orders**
-- Execute only at your specified price or better
-- May not execute if price doesn't reach target
-- Best for: Precise entry/exit points
+### Day 4-5: Introduce AI Bots
+**Time Investment: 45 minutes**
 
-**Stop-Loss Orders**
-- Automatically sell if price drops to protect losses
-- Helps limit downside risk
-- Best for: Risk management
+✅ **Create Your First Bot**
+- Go to **AI Bots** section
+- Choose **Dollar Cost Averaging (DCA)** strategy
+- Set up automatic Bitcoin purchases
+- Start with $50 AUD per week
 
-### Reading the Trading Interface
+✅ **Understand Bot Strategies**
+- **DCA (Dollar Cost Averaging)**: Regular purchases regardless of price
+- **Grid Trading**: Buy low, sell high automatically
+- **Momentum**: Follow trending price movements
+- **Mean Reversion**: Buy when prices drop, sell when they rise
 
-#### Price Chart
-- **Candlestick Chart**: Shows open, high, low, close prices
-- **Time Frames**: 1m, 5m, 15m, 1H, 4H, 1D, 1W
-- **Technical Indicators**: RSI, MACD, Moving Averages
-- **Drawing Tools**: Trend lines, support/resistance
+✅ **Monitor Bot Performance**
+- Check daily performance metrics
+- Compare bot results vs manual trading
+- Adjust settings based on results
+- Learn from successful strategies
 
-#### Order Book
-- **Bid Prices**: What buyers are willing to pay
-- **Ask Prices**: What sellers are asking
-- **Market Depth**: Volume at each price level
+### Day 6-7: Advanced Features
+**Time Investment: 1 hour**
 
-#### Recent Trades
-- **Trade History**: Recent transaction prices and volumes
-- **Market Direction**: Buying or selling pressure
-- **Price Discovery**: How current price is formed
+✅ **Portfolio Analysis**
+- Review your asset allocation
+- Check risk metrics and diversification
+- Analyze performance vs market benchmarks
+- Plan portfolio rebalancing
 
-## Setting Up Your First AI Bot
+✅ **Set Up Comprehensive Alerts**
+- Price targets for buying opportunities
+- Volume spikes indicating market activity
+- News alerts for your holdings
+- Bot performance notifications
 
-### Why Use AI Trading Bots?
-- **24/7 Trading**: Never miss market opportunities
-- **Emotion-Free**: Remove fear and greed from decisions
-- **Consistent Strategy**: Follow rules without deviation
-- **Time Saving**: Automate repetitive tasks
+## Core Features Guide
 
-### Bot Strategy Guide
+### 1. Paper Trading
+**Perfect for beginners and strategy testing**
 
-#### Dollar Cost Averaging (DCA)
-**Best for**: Beginners, long-term investors
-**How it works**: Invests fixed amounts at regular intervals
-**Setup**:
-1. Choose cryptocurrency (recommend starting with Bitcoin)
-2. Set investment amount ($25-$100 AUD per week)
-3. Select frequency (weekly recommended)
-4. Set duration (3-6 months to start)
+**Benefits:**
+- Zero financial risk
+- Real market conditions
+- Full platform functionality
+- Performance tracking
 
-#### Grid Trading
-**Best for**: Sideways markets, intermediate traders
-**How it works**: Places buy and sell orders at regular intervals
-**Setup**:
-1. Define price range (support and resistance levels)
-2. Set number of grid levels (5-10 for beginners)
-3. Allocate capital per grid level
-4. Monitor and adjust as needed
+**How to Start:**
+1. Account comes with $10,000 AUD virtual money
+2. Trade exactly like real money
+3. Test strategies and learn
+4. Track your progress over time
 
-#### Momentum Trading
-**Best for**: Trending markets, active traders
-**How it works**: Follows price trends and momentum indicators
-**Setup**:
-1. Choose trending cryptocurrency
-2. Set momentum indicators (RSI, MACD)
-3. Define entry and exit conditions
-4. Set stop-loss and take-profit levels
+### 2. AI Trading Bots
+**Automated strategies that trade for you**
 
-### Bot Configuration Best Practices
+**Popular Strategies:**
+- **Dollar Cost Averaging**: Reduces timing risk with regular purchases
+- **Grid Trading**: Profits from price volatility
+- **Momentum Trading**: Follows market trends
+- **Mean Reversion**: Buys dips, sells peaks
 
-#### Risk Management
-- **Start Small**: Begin with 5-10% of your portfolio
-- **Set Stop Losses**: Limit potential losses to 5-10%
-- **Diversify**: Don't put all funds in one bot or strategy
-- **Monitor Performance**: Review and adjust weekly
+**Setting Up a Bot:**
+1. Choose a strategy that matches your risk tolerance
+2. Set investment amount and frequency
+3. Configure risk management (stop-loss, take-profit)
+4. Activate and monitor performance
 
-#### Position Sizing
-- **Conservative**: 2-5% per trade
-- **Moderate**: 5-10% per trade
-- **Aggressive**: 10-20% per trade
+### 3. Market Analysis
+**Stay informed with real-time data**
 
-## Portfolio Management
+**Features:**
+- Live price feeds updated every 10 seconds
+- Professional-grade charts with technical indicators
+- AI-powered market insights and predictions
+- Comprehensive news aggregation
 
-### Building Your First Portfolio
+### 4. Portfolio Management
+**Track and optimize your investments**
 
-#### Diversification Strategy
-**Core Holdings (50-60%)**
-- Bitcoin (BTC): Digital gold, store of value
-- Ethereum (ETH): Smart contracts, DeFi platform
+**Key Metrics:**
+- Total value and daily changes
+- Asset allocation breakdown
+- Performance attribution
+- Risk analysis and recommendations
 
-**Growth Holdings (30-40%)**
-- Solana (SOL): Fast, low-cost transactions
-- Cardano (ADA): Research-driven blockchain
-- Polygon (MATIC): Ethereum scaling solution
+## Investment Strategies for Beginners
 
-**Speculative Holdings (10-20%)**
-- Smaller altcoins with high growth potential
-- New projects and emerging technologies
-- Only invest what you can afford to lose
+### Strategy 1: Conservative DCA
+**Best for: Risk-averse beginners**
+- Invest fixed amount weekly in Bitcoin/Ethereum
+- Use AI DCA bot for automation
+- Target: 5-10% annual returns
+- Risk level: Low
 
-#### Rebalancing Your Portfolio
-**When to Rebalance**:
-- Monthly or quarterly review
-- When allocation drifts 5%+ from target
-- After major market movements
-- When investment thesis changes
+### Strategy 2: Diversified Growth
+**Best for: Moderate risk tolerance**
+- Spread investments across top 5-10 cryptocurrencies
+- Combine manual trading with AI bots
+- Target: 15-25% annual returns
+- Risk level: Medium
 
-**How to Rebalance**:
-1. Review current allocation
-2. Compare to target allocation
-3. Sell overweight positions
-4. Buy underweight positions
-5. Consider tax implications
+### Strategy 3: Active Trading
+**Best for: Experienced investors**
+- Use multiple AI strategies simultaneously
+- Active manual trading with technical analysis
+- Target: 30%+ annual returns
+- Risk level: High
 
-### Risk Management
+## Safety & Security Tips
 
-#### Position Sizing Rules
-- **No single position > 20%** of portfolio
-- **Core positions: 5-15%** each
-- **Speculative positions: 1-5%** each
-- **Keep 10-20% cash** for opportunities
+### Account Security
+- Use a strong, unique password
+- Enable two-factor authentication (when available)
+- Never share your login credentials
+- Log out from shared computers
 
-#### Stop-Loss Strategies
-- **Trailing Stop Loss**: Moves up with price gains
-- **Fixed Stop Loss**: Set percentage below entry price
-- **Time-Based Stops**: Exit after predetermined time
-- **Fundamental Stops**: Exit when thesis breaks
+### Investment Safety
+- Start with paper trading
+- Never invest more than you can afford to lose
+- Diversify your investments
+- Set stop-losses to limit downside
+- Keep learning about cryptocurrency markets
 
-## Price Alerts and Notifications
+### Recognizing Scams
+- CryptoMax will never ask for your password via email
+- Beware of "guaranteed returns" promises
+- Don't trust unsolicited investment advice
+- Verify all official communications
 
-### Setting Up Alerts
+## Understanding Cryptocurrency Basics
 
-#### Price Alerts
-1. **Navigate to Alerts**: Click the bell icon
-2. **Choose Cryptocurrency**: Select from dropdown
-3. **Set Alert Type**:
-   - Price Above: Alert when price rises above target
-   - Price Below: Alert when price falls below target
-   - Price Change: Alert on percentage moves
-4. **Set Target Price**: Enter your alert level
-5. **Choose Notifications**: Email, in-app, or both
+### What is Cryptocurrency?
+- Digital currency secured by cryptography
+- Operates on decentralized blockchain networks
+- Not controlled by governments or banks
+- Value determined by supply and demand
 
-#### Volume Alerts
-- **Volume Spike**: Unusual trading activity
-- **Volume Drop**: Reduced market interest
-- **Volume Breakout**: Confirmation of price moves
+### Major Cryptocurrencies
+- **Bitcoin (BTC)**: The first and largest cryptocurrency
+- **Ethereum (ETH)**: Platform for smart contracts and DeFi
+- **Solana (SOL)**: High-speed blockchain for applications
+- **Cardano (ADA)**: Research-driven blockchain platform
 
-#### News Alerts
-- **Keyword Alerts**: Specific coins or events
-- **Sentiment Alerts**: Market mood changes
-- **Regulatory Alerts**: Legal and compliance news
+### Market Dynamics
+- **Volatility**: Prices can change rapidly
+- **Market Cap**: Total value of all coins
+- **Volume**: Amount of trading activity
+- **Sentiment**: Market mood affects prices
 
-### Managing Notifications
+## Common Beginner Mistakes to Avoid
 
-#### Notification Settings
-- **Frequency**: Immediate, hourly, daily digest
-- **Channels**: Email, in-app, push notifications
-- **Priority**: High, medium, low urgency
-- **Quiet Hours**: Set do-not-disturb periods
+### 1. FOMO (Fear of Missing Out)
+- Don't chase rapidly rising prices
+- Stick to your investment plan
+- Use DCA to reduce timing risk
 
-## Safety and Security
+### 2. Emotional Trading
+- Don't panic sell during market dips
+- Don't get greedy during bull runs
+- Let AI bots handle emotions for you
 
-### Protecting Your Account
+### 3. Lack of Diversification
+- Don't put everything in one cryptocurrency
+- Spread risk across multiple assets
+- Consider both established and emerging coins
 
-#### Account Security
-- **Strong Password**: Use unique, complex passwords
-- **Two-Factor Authentication**: Enable 2FA immediately
-- **Regular Updates**: Change passwords quarterly
-- **Secure Email**: Protect your email account
+### 4. Ignoring Risk Management
+- Always set stop-losses
+- Never invest borrowed money
+- Keep some cash for opportunities
 
-#### Safe Trading Practices
-- **Start with Paper Trading**: Learn without risk
-- **Invest Only What You Can Afford to Lose**
-- **Do Your Own Research**: Don't rely solely on tips
-- **Avoid FOMO**: Don't chase price pumps
-- **Take Profits**: Lock in gains regularly
+## Getting Help
 
-#### Recognizing Scams
-**Red Flags**:
-- Guaranteed returns or "risk-free" investments
-- Pressure to invest immediately
-- Requests for private keys or passwords
-- Unsolicited investment advice
-- Too-good-to-be-true offers
+### In-App Support
+- **Help Center**: Comprehensive guides and FAQs
+- **Live Chat**: Real-time support during business hours
+- **Video Tutorials**: Step-by-step learning content
+- **Community Forum**: Connect with other traders
 
 ### Educational Resources
+- **Blog**: Market analysis and trading tips
+- **Webinars**: Live education sessions
+- **Podcast**: Weekly market updates
+- **Newsletter**: Important updates and insights
 
-#### Learning Materials
-- **Video Tutorials**: Step-by-step guides
-- **Blog Posts**: Market analysis and strategies
-- **Webinars**: Live trading sessions
-- **Documentation**: Comprehensive guides
-
-#### Community Support
-- **Help Center**: FAQ and troubleshooting
-- **Live Chat**: Real-time support during business hours
-- **Email Support**: Detailed technical assistance
-- **Community Forum**: User discussions and tips
-
-## Upgrading Your Account
-
-### Subscription Tiers
-
-#### Free Tier
-- Paper trading with $10,000 virtual AUD
-- Basic market data and charts
-- 3 AI trading bots
-- 10 price alerts
-- Community support
-
-#### Pro Tier ($29/month)
-- Real trading capability
-- Advanced charts and indicators
-- Unlimited AI trading bots
-- 100 price alerts
-- Priority support
-- Advanced analytics
-
-#### Enterprise Tier ($299/month)
-- All Pro features
-- API access for developers
-- Custom trading strategies
-- Unlimited alerts
-- Dedicated account manager
-- White-label options
-
-### When to Upgrade
-- **Ready for Real Trading**: Profitable in paper trading
-- **Need More Bots**: Hit the 3-bot limit
-- **Advanced Features**: Professional charts and analysis
-- **Higher Volume**: Increased trading activity
-
-## Troubleshooting
-
-### Common Issues
-
-#### Login Problems
-- **Forgot Password**: Use password reset link
-- **Email Not Verified**: Check spam folder, resend verification
-- **Account Locked**: Contact support for assistance
-- **2FA Issues**: Use backup codes or contact support
-
-#### Trading Issues
-- **Order Not Executing**: Check market hours and order type
-- **Insufficient Funds**: Verify account balance
-- **Price Differences**: Market orders may have slippage
-- **Bot Not Working**: Check bot status and configuration
-
-#### Technical Problems
-- **Slow Loading**: Check internet connection, try refreshing
-- **Charts Not Updating**: Disable ad blockers, clear cache
-- **Mobile Issues**: Update app to latest version
-- **Browser Issues**: Try different browser or incognito mode
-
-### Getting Help
-
-#### Self-Help Resources
-1. **FAQ Section**: Common questions and answers
-2. **Video Tutorials**: Visual step-by-step guides
-3. **Knowledge Base**: Comprehensive documentation
-4. **Community Forum**: User discussions and solutions
-
-#### Contact Support
-- **Live Chat**: Available 9 AM - 6 PM AEST
+### Contact Information
 - **Email**: support@cryptomax.com.au
+- **Hours**: Monday-Friday, 9 AM - 6 PM AEST
 - **Response Time**: Within 24 hours
-- **Priority Support**: Pro and Enterprise users
+- **Emergency**: Critical issues addressed immediately
 
 ## Next Steps
 
-### Beginner Path (Weeks 1-4)
-1. **Week 1**: Complete account setup, explore dashboard
-2. **Week 2**: Practice paper trading, learn order types
-3. **Week 3**: Set up first DCA bot, configure alerts
-4. **Week 4**: Review performance, adjust strategies
+### Week 2: Advanced Trading
+- Explore technical analysis tools
+- Try different AI bot strategies
+- Increase position sizes gradually
+- Set up comprehensive portfolio tracking
 
-### Intermediate Path (Months 2-3)
-1. **Month 2**: Try grid trading bot, analyze performance
-2. **Month 3**: Diversify portfolio, implement risk management
+### Month 2: Strategy Refinement
+- Analyze your trading performance
+- Optimize AI bot configurations
+- Explore DeFi and staking opportunities
+- Consider switching to real trading
 
-### Advanced Path (Month 4+)
-1. **Advanced Strategies**: Momentum trading, arbitrage
-2. **Real Trading**: Transition from paper to live trading
-3. **Portfolio Optimization**: Advanced rebalancing strategies
-4. **API Integration**: Custom tools and automation
+### Month 3+: Mastery
+- Develop your own trading strategies
+- Use advanced analytics and reporting
+- Share strategies with the community
+- Consider premium features
 
-### Success Metrics
-- **Consistent Profitability**: 3+ months of positive returns
-- **Risk Management**: Max drawdown under 20%
-- **Strategy Discipline**: Following predetermined rules
-- **Continuous Learning**: Staying updated with market trends
+## Success Metrics
+
+### Beginner Goals (First Month)
+- Complete 10+ paper trades
+- Test 2-3 AI bot strategies
+- Achieve positive paper trading returns
+- Understand basic market concepts
+
+### Intermediate Goals (3 Months)
+- Consistent profitable trading
+- Optimized AI bot performance
+- Well-diversified portfolio
+- Strong risk management practices
+
+### Advanced Goals (6+ Months)
+- Outperform market benchmarks
+- Develop signature trading strategies
+- Help other community members
+- Consider real money trading
+
+## Welcome to Your Crypto Journey! 🌟
+
+CryptoMax is designed to make cryptocurrency trading accessible, profitable, and educational. Start with paper trading, learn from AI bots, and gradually build your confidence and skills.
+
+Remember: Every expert was once a beginner. Take your time, learn continuously, and most importantly, enjoy the journey into the exciting world of cryptocurrency trading!
 
 ---
 
-**Welcome to your crypto trading journey! Start small, learn continuously, and trade responsibly.**
-
-*For additional support, visit our [Help Center](https://help.cryptomax.com.au) or contact our team.*
+*For additional support, visit our Help Center or contact our support team. Happy trading!*

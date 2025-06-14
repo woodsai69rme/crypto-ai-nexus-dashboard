@@ -2,539 +2,304 @@
 # Technical Architecture - CryptoMax
 
 ## Overview
-This document outlines the technical architecture of the CryptoMax platform, including system components, data flow, technology stack, and infrastructure design decisions.
-
-## System Architecture
-
-### High-Level Architecture
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web Client    │    │  Mobile Client  │    │  Admin Panel    │
-│   (React SPA)   │    │   (React PWA)   │    │   (React SPA)   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-         ┌───────────────────────────────────────────────┐
-         │              Load Balancer                    │
-         │            (Cloudflare/Vercel)               │
-         └───────────────────────────────────────────────┘
-                                 │
-         ┌───────────────────────────────────────────────┐
-         │              API Gateway                      │
-         │            (Supabase Edge)                    │
-         └───────────────────────────────────────────────┘
-                                 │
-    ┌────────────────────────────┼────────────────────────────┐
-    │                            │                            │
-┌───▼────┐              ┌───────▼────────┐              ┌────▼────┐
-│Auth    │              │ Core API       │              │Real-time│
-│Service │              │ (Supabase)     │              │Service  │
-│        │              │                │              │         │
-└────────┘              └────────────────┘              └─────────┘
-                                 │
-         ┌───────────────────────────────────────────────┐
-         │            Database Layer                     │
-         │          (PostgreSQL + Redis)                │
-         └───────────────────────────────────────────────┘
-```
-
-### Component Architecture
-
-#### Frontend Architecture
-```
-src/
-├── components/          # Reusable UI components
-│   ├── ui/             # Base UI components (shadcn/ui)
-│   ├── layout/         # Layout components
-│   ├── trading/        # Trading-specific components
-│   ├── portfolio/      # Portfolio management
-│   ├── bots/          # AI bot management
-│   └── analytics/     # Analytics and charts
-├── hooks/              # Custom React hooks
-├── services/           # API services and integrations
-├── pages/              # Page components
-├── utils/              # Utility functions
-├── types/              # TypeScript type definitions
-└── lib/               # Library configurations
-```
-
-#### Backend Architecture (Supabase)
-```
-supabase/
-├── migrations/         # Database schema migrations
-├── functions/          # Edge functions (serverless)
-│   ├── auth/          # Authentication functions
-│   ├── trading/       # Trading-related functions
-│   ├── market-data/   # Market data processing
-│   └── notifications/ # Notification services
-├── storage/           # File storage configuration
-└── config.toml       # Supabase configuration
-```
+CryptoMax is built as a modern, scalable web application using React, TypeScript, and Supabase for backend services. The architecture follows a modular, component-based approach with clear separation of concerns.
 
 ## Technology Stack
 
-### Frontend Technologies
+### Frontend
+- **React 18** - Modern React with hooks and functional components
+- **TypeScript** - Type-safe JavaScript development
+- **Vite** - Fast build tool and development server
+- **Tailwind CSS** - Utility-first CSS framework
+- **Shadcn/ui** - High-quality UI component library
+- **Recharts** - Data visualization and charting library
+- **Lucide React** - Icon library
 
-#### Core Framework
-- **React 18**: Modern React with concurrent features
-- **TypeScript**: Type-safe JavaScript development
-- **Vite**: Fast build tool and development server
-- **React Router**: Client-side routing
+### Backend & Infrastructure
+- **Supabase** - Backend as a Service (BaaS)
+  - PostgreSQL database
+  - Real-time subscriptions
+  - Authentication & authorization
+  - Row Level Security (RLS)
+  - Edge Functions for serverless computing
+- **Vercel** - Deployment and hosting platform
 
-#### UI Framework
-- **Tailwind CSS**: Utility-first CSS framework
-- **Shadcn/UI**: Component library built on Radix UI
-- **Lucide React**: Icon library
-- **Recharts**: Data visualization and charting
+### External APIs
+- **CoinGecko API** - Cryptocurrency market data
+- **News APIs** - Crypto news aggregation
+- **WebSocket Connections** - Real-time price feeds
 
-#### State Management
-- **React Query (TanStack)**: Server state management
-- **React Context**: Local state management
-- **Zustand**: Global state management (if needed)
+## Architecture Patterns
 
-#### Development Tools
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **Husky**: Git hooks
-- **TypeScript**: Type checking
-
-### Backend Technologies
-
-#### Core Platform
-- **Supabase**: Backend-as-a-Service platform
-- **PostgreSQL**: Primary database
-- **PostgREST**: Automatic API generation
-- **GoTrue**: Authentication service
-
-#### Edge Functions
-- **Deno**: Runtime for edge functions
-- **TypeScript**: Edge function development
-- **Supabase Edge Runtime**: Serverless execution
-
-#### External APIs
-- **CoinGecko API**: Cryptocurrency market data
-- **News API**: Cryptocurrency news feeds
-- **OpenRouter**: AI model access
-
-### Infrastructure
-
-#### Hosting and Deployment
-- **Vercel**: Frontend hosting and deployment
-- **Supabase**: Backend infrastructure
-- **Cloudflare**: CDN and DDoS protection
-- **GitHub**: Version control and CI/CD
-
-#### Monitoring and Analytics
-- **Sentry**: Error tracking and monitoring
-- **Supabase Analytics**: Database and API analytics
-- **Google Analytics**: User behavior analytics
-- **LogRocket**: Session replay and debugging
-
-## Data Architecture
-
-### Database Schema Design
-
-#### Core Tables
-
-**Users and Authentication**
-```sql
--- Handled by Supabase Auth
-auth.users              -- User authentication data
-public.profiles         -- Extended user profiles
-public.user_settings    -- User preferences and settings
+### Component Architecture
 ```
-
-**Trading Data**
-```sql
-public.portfolios       -- User portfolios
-public.orders           -- Trading orders
-public.positions        -- Current positions
-public.trade_history    -- Historical trades
-public.trading_bots     -- AI trading bot configurations
-```
-
-**Market Data**
-```sql
-public.market_data      -- Real-time market data cache
-public.price_history    -- Historical price data
-public.news_feed        -- Cryptocurrency news
-public.alerts           -- Price and volume alerts
-```
-
-**Analytics and Reporting**
-```sql
-public.user_analytics   -- User behavior analytics
-public.performance_metrics -- Trading performance data
-public.system_logs      -- System activity logs
-```
-
-#### Database Relationships
-```
-Users (1) ──────── (M) Portfolios
-Users (1) ──────── (M) Trading Bots
-Users (1) ──────── (M) Orders
-Users (1) ──────── (M) Alerts
-Portfolios (1) ─── (M) Positions
-Trading Bots (1) ─ (M) Bot Trades
+src/
+├── components/           # Reusable UI components
+│   ├── common/          # Shared components
+│   ├── trading/         # Trading-specific components
+│   ├── portfolio/       # Portfolio management
+│   ├── auth/           # Authentication components
+│   └── layout/         # Layout components
+├── hooks/              # Custom React hooks
+├── services/           # API and business logic
+├── utils/              # Utility functions
+├── contexts/           # React contexts
+└── pages/              # Page components
 ```
 
 ### Data Flow Architecture
-
-#### Real-Time Data Flow
 ```
-External APIs → Supabase Functions → Database → Real-time → Frontend
-     │                  │              │          │          │
-CoinGecko API      Edge Functions   PostgreSQL  WebSockets  React App
-News APIs          Data Processing   + Redis     + Pub/Sub   + State Mgmt
+UI Components → Custom Hooks → Services → Supabase/APIs
+     ↓              ↓           ↓           ↓
+State Management ← Data Processing ← Response ← External Data
 ```
 
-#### Trading Data Flow
-```
-User Input → Validation → Order Processing → Database → Portfolio Update
-    │            │             │               │            │
-Order Form   Business Rules  Trade Execution  PostgreSQL   Real-time UI
+## Core Modules
+
+### 1. Authentication Module
+**Components:**
+- `AuthGuard` - Route protection
+- `Auth` - Login/registration page
+- `useAuth` - Authentication hook
+
+**Features:**
+- Email/password authentication
+- Session management
+- Route protection
+- User profile management
+
+### 2. Market Data Module
+**Components:**
+- `MarketOverview` - Market data table
+- `TradingChart` - Price charts
+- `useMarketData` - Market data hook
+
+**Features:**
+- Real-time price updates
+- Historical data visualization
+- Market sentiment analysis
+- Multi-currency support
+
+### 3. Trading Module
+**Components:**
+- `OrderForm` - Order placement interface
+- `OrderHistory` - Order management
+- `useOrders` - Order management hook
+
+**Features:**
+- Paper trading
+- Order management (market, limit, stop-loss)
+- Real-time order updates
+- Portfolio integration
+
+### 4. Portfolio Module
+**Components:**
+- `Portfolio` - Portfolio overview
+- `RealTimePortfolio` - Live portfolio tracking
+- `usePortfolio` - Portfolio management hook
+
+**Features:**
+- Real-time valuation
+- Performance analytics
+- Asset allocation
+- P&L tracking
+
+### 5. AI Trading Module
+**Components:**
+- `BotManager` - Bot creation and management
+- `AdvancedBotManager` - Advanced bot features
+- `useTradingBots` - Bot management hook
+
+**Features:**
+- Strategy templates
+- Bot backtesting
+- Performance monitoring
+- Risk management
+
+## Database Architecture
+
+### Core Tables
+```sql
+-- User profiles
+profiles (id, username, display_name, preferences)
+
+-- Portfolio management
+portfolios (id, user_id, name, mode, balance, positions)
+
+-- Trading orders
+orders (id, user_id, symbol, side, type, quantity, price, status)
+
+-- AI trading bots
+trading_bots (id, user_id, strategy, config, performance)
+
+-- Price alerts
+alerts (id, user_id, symbol, condition, target_value)
+
+-- Market data cache
+market_data_cache (symbol, price, change_24h, volume, timestamp)
 ```
 
-## API Design
+### Security Model
+- Row Level Security (RLS) on all user data
+- User isolation through user_id filters
+- Secure API endpoints with authentication
+- Real-time subscriptions with user context
 
-### RESTful API Structure
+## Real-time Data Flow
 
-#### Authentication Endpoints
+### WebSocket Architecture
 ```
-POST /auth/signup        # User registration
-POST /auth/signin        # User login
-POST /auth/signout       # User logout
-POST /auth/reset         # Password reset
-GET  /auth/user          # Get current user
-```
-
-#### Trading Endpoints
-```
-GET    /api/portfolio         # Get user portfolio
-POST   /api/orders           # Create new order
-GET    /api/orders           # Get user orders
-PUT    /api/orders/:id       # Update order
-DELETE /api/orders/:id       # Cancel order
-GET    /api/positions        # Get user positions
+CoinGecko API → Supabase Edge Function → Database → Real-time Subscriptions → UI
 ```
 
-#### Market Data Endpoints
-```
-GET /api/market/prices       # Current prices
-GET /api/market/history      # Historical data
-GET /api/market/news         # Market news
-GET /api/market/analytics    # Market analytics
-```
+### Data Update Cycle
+1. **Market Data**: Updates every 10 seconds
+2. **Portfolio Values**: Calculated on price changes
+3. **Order Status**: Real-time updates via Supabase
+4. **Bot Performance**: Updated on trade execution
 
-#### Bot Management Endpoints
-```
-GET    /api/bots            # Get user bots
-POST   /api/bots            # Create new bot
-PUT    /api/bots/:id        # Update bot
-DELETE /api/bots/:id        # Delete bot
-POST   /api/bots/:id/start  # Start bot
-POST   /api/bots/:id/stop   # Stop bot
-```
+## State Management
 
-### WebSocket API
+### Context Providers
+- `AuthProvider` - User authentication state
+- `SettingsProvider` - User preferences
+- `QueryClient` - Server state caching (React Query)
 
-#### Real-Time Subscriptions
-```javascript
-// Price updates
-supabase
-  .channel('price-updates')
-  .on('postgres_changes', {
-    event: 'UPDATE',
-    schema: 'public',
-    table: 'market_data'
-  }, handlePriceUpdate)
-  .subscribe();
+### Local State
+- Component state for UI interactions
+- Custom hooks for business logic
+- React Query for server state
 
-// Portfolio updates
-supabase
-  .channel('portfolio-updates')
-  .on('postgres_changes', {
-    event: '*',
-    schema: 'public',
-    table: 'portfolios',
-    filter: `user_id=eq.${userId}`
-  }, handlePortfolioUpdate)
-  .subscribe();
-```
+## Performance Optimizations
+
+### Frontend
+- Component lazy loading
+- Virtualized scrolling for large datasets
+- Debounced API calls
+- Memoized expensive calculations
+- Optimized re-renders with React.memo
+
+### Backend
+- Database indexing on frequently queried columns
+- Connection pooling
+- Query optimization
+- Cached market data
+- Edge function caching
+
+### Real-time Features
+- Efficient WebSocket connections
+- Selective data subscriptions
+- Batched updates
+- Connection retry logic
 
 ## Security Architecture
 
-### Authentication and Authorization
+### Frontend Security
+- Input validation and sanitization
+- XSS protection
+- CSRF protection
+- Secure HTTP headers
 
-#### Multi-Factor Authentication
-```
-User Login → Email/Password → MFA Challenge → JWT Token → API Access
-    │              │              │            │           │
-Login Form    Supabase Auth    SMS/TOTP    Signed JWT    Protected Routes
-```
-
-#### Role-Based Access Control (RBAC)
-```sql
--- User roles
-CREATE TYPE user_role AS ENUM ('trader', 'premium', 'admin');
-
--- Permission system
-CREATE TABLE user_permissions (
-  user_id UUID REFERENCES auth.users(id),
-  permission TEXT NOT NULL,
-  granted_at TIMESTAMP DEFAULT NOW()
-);
-```
-
-### Data Security
-
-#### Encryption
-- **At Rest**: PostgreSQL encryption with AES-256
-- **In Transit**: TLS 1.3 for all communications
-- **API Keys**: Encrypted storage in Supabase Vault
-- **PII Data**: Field-level encryption for sensitive data
-
-#### Row Level Security (RLS)
-```sql
--- Example RLS policy
-CREATE POLICY "Users can only see their own portfolios"
-  ON portfolios FOR ALL
-  USING (auth.uid() = user_id);
-```
+### Backend Security
+- Row Level Security (RLS)
+- JWT token authentication
+- API rate limiting
+- SQL injection prevention
+- Data encryption at rest and in transit
 
 ### API Security
-
-#### Rate Limiting
-```javascript
-// Edge function rate limiting
-const rateLimit = {
-  anonymous: '10/minute',
-  authenticated: '100/minute',
-  premium: '1000/minute'
-};
-```
-
-#### Input Validation
-```typescript
-// Zod schema validation
-const orderSchema = z.object({
-  symbol: z.string().min(3).max(10),
-  side: z.enum(['buy', 'sell']),
-  quantity: z.number().positive(),
-  price: z.number().positive().optional()
-});
-```
-
-## Performance Architecture
-
-### Caching Strategy
-
-#### Multi-Level Caching
-```
-Browser Cache → CDN Cache → API Cache → Database Cache
-     │             │          │           │
-Local Storage  Cloudflare   Redis      PostgreSQL
-(5 minutes)    (1 hour)    (15 min)   (Persistent)
-```
-
-#### Cache Implementation
-```typescript
-// Service worker caching
-self.addEventListener('fetch', (event) => {
-  if (event.request.url.includes('/api/market/prices')) {
-    event.respondWith(
-      caches.open('market-data').then(cache => {
-        return cache.match(event.request).then(response => {
-          return response || fetch(event.request);
-        });
-      })
-    );
-  }
-});
-```
-
-### Database Optimization
-
-#### Query Optimization
-```sql
--- Optimized indexes
-CREATE INDEX idx_market_data_symbol_timestamp 
-ON market_data (symbol, last_updated DESC);
-
-CREATE INDEX idx_orders_user_status 
-ON orders (user_id, status) WHERE status IN ('pending', 'partial');
-```
-
-#### Connection Pooling
-```typescript
-// Supabase connection pooling
-const supabase = createClient(url, key, {
-  db: {
-    poolSize: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000
-  }
-});
-```
-
-### Real-Time Performance
-
-#### WebSocket Optimization
-```typescript
-// Debounced updates
-const debouncedUpdate = debounce((data) => {
-  updatePortfolioDisplay(data);
-}, 100);
-
-supabase
-  .channel('portfolio')
-  .on('postgres_changes', {}, debouncedUpdate)
-  .subscribe();
-```
-
-## Scalability Architecture
-
-### Horizontal Scaling
-
-#### Microservices Approach (Future)
-```
-┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-│   Auth      │  │  Trading    │  │ Market Data │
-│  Service    │  │  Service    │  │  Service    │
-└─────────────┘  └─────────────┘  └─────────────┘
-       │                │                │
-┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-│ Notification│  │ Analytics   │  │   Bot       │
-│  Service    │  │  Service    │  │ Management  │
-└─────────────┘  └─────────────┘  └─────────────┘
-```
-
-#### Database Scaling
-```sql
--- Partitioning strategy
-CREATE TABLE market_data_2024 PARTITION OF market_data
-FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
-
--- Read replicas for analytics
-CREATE SUBSCRIPTION analytics_replica
-CONNECTION 'host=analytics-db port=5432'
-PUBLICATION analytics_data;
-```
-
-### Load Balancing
-
-#### CDN Strategy
-```
-User Request → Cloudflare → Vercel Edge → Supabase
-     │             │           │            │
-Geographic     Cache Layer   App Server   Database
-Distribution   + DDoS        + Static      + API
-```
-
-## Monitoring and Observability
-
-### Application Monitoring
-
-#### Error Tracking
-```typescript
-// Sentry integration
-import * as Sentry from '@sentry/react';
-
-Sentry.init({
-  dsn: process.env.REACT_APP_SENTRY_DSN,
-  environment: process.env.NODE_ENV,
-  tracesSampleRate: 0.1
-});
-```
-
-#### Performance Monitoring
-```typescript
-// Custom performance tracking
-const trackPerformance = (action: string, duration: number) => {
-  analytics.track('Performance', {
-    action,
-    duration,
-    timestamp: Date.now()
-  });
-};
-```
-
-### Infrastructure Monitoring
-
-#### Health Checks
-```typescript
-// Health check endpoint
-export default async function handler(req: Request) {
-  const checks = await Promise.all([
-    checkDatabase(),
-    checkExternalAPIs(),
-    checkCache(),
-    checkWebSockets()
-  ]);
-  
-  return new Response(JSON.stringify({
-    status: checks.every(c => c.healthy) ? 'healthy' : 'degraded',
-    checks
-  }));
-}
-```
+- Authentication required for all endpoints
+- User context validation
+- Input validation
+- Error handling without information leakage
 
 ## Deployment Architecture
 
-### CI/CD Pipeline
-
-#### GitHub Actions Workflow
-```yaml
-name: Deploy to Production
-on:
-  push:
-    branches: [main]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm ci
-      - name: Run tests
-        run: npm test
-      - name: Build application
-        run: npm run build
-      - name: Deploy to Vercel
-        uses: vercel/action@v1
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+### Build Process
+```
+Source Code → TypeScript Compilation → Vite Build → Static Assets
 ```
 
-#### Environment Strategy
-```
-Development → Staging → Production
-     │           │          │
-Feature     Integration   Live
-Branch      Testing       Users
-```
+### Hosting
+- **Frontend**: Vercel for static site hosting
+- **Backend**: Supabase managed infrastructure
+- **CDN**: Global content delivery
+- **SSL**: Automatic HTTPS certificates
 
-### Backup and Recovery
+### Environment Management
+- Development: Local with Supabase dev instance
+- Staging: Preview deployments on Vercel
+- Production: Production Supabase + Vercel
 
-#### Database Backup Strategy
-```sql
--- Automated backups
-SELECT pg_create_restore_point('daily_backup');
+## Monitoring & Observability
 
--- Point-in-time recovery
-SELECT pg_create_restore_point('pre_migration_' || NOW()::DATE);
-```
+### Error Tracking
+- React Error Boundaries
+- Supabase function logs
+- Client-side error reporting
+- API error monitoring
 
-#### Disaster Recovery
-```
-Primary Region (AWS us-east-1) → Backup Region (AWS ap-southeast-2)
-         │                              │
-    Live Database                   Read Replica
-    + File Storage                  + File Backup
-```
+### Performance Monitoring
+- Core Web Vitals tracking
+- API response time monitoring
+- Database query performance
+- Real-time connection health
+
+### Analytics
+- User behavior tracking
+- Trading volume metrics
+- Feature usage analytics
+- Performance metrics
+
+## Scalability Considerations
+
+### Frontend Scaling
+- CDN distribution
+- Code splitting
+- Lazy loading
+- Efficient bundling
+
+### Backend Scaling
+- Supabase auto-scaling
+- Database connection pooling
+- Edge function scaling
+- Caching strategies
+
+### Data Scaling
+- Database partitioning
+- Archive old data
+- Efficient queries
+- Data compression
+
+## Integration Points
+
+### External Services
+- **CoinGecko**: Market data provider
+- **News APIs**: Crypto news aggregation
+- **Email Services**: Notifications and alerts
+- **Payment Processors**: Future real trading
+
+### Internal Services
+- **Authentication**: Supabase Auth
+- **Database**: Supabase PostgreSQL
+- **Storage**: Supabase Storage (future)
+- **Functions**: Supabase Edge Functions
+
+## Development Workflow
+
+### Code Organization
+- Feature-based folder structure
+- Shared components and utilities
+- Type definitions and interfaces
+- Consistent naming conventions
+
+### Quality Assurance
+- TypeScript type checking
+- ESLint code linting
+- Prettier code formatting
+- Component testing
+- Integration testing
 
 ---
 
-*This technical architecture provides a solid foundation for building and scaling the CryptoMax platform. Regular architecture reviews should be conducted as the system grows.*
+*This architecture document provides the foundation for understanding and extending the CryptoMax platform. Regular reviews ensure it stays aligned with the evolving codebase.*
