@@ -3,6 +3,10 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { apiService } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type DatabaseOrder = Database['public']['Tables']['orders']['Row'];
+type DatabaseOrderInsert = Database['public']['Tables']['orders']['Insert'];
 
 interface Order {
   id: string;
@@ -29,6 +33,25 @@ export const useOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Convert database order to our local Order type
+  const convertDatabaseOrder = (dbOrder: DatabaseOrder): Order => ({
+    id: dbOrder.id,
+    user_id: dbOrder.user_id,
+    portfolio_id: dbOrder.portfolio_id || '',
+    symbol: dbOrder.symbol,
+    side: dbOrder.side as 'buy' | 'sell',
+    type: dbOrder.type as 'market' | 'limit' | 'stop_loss',
+    quantity: Number(dbOrder.quantity),
+    price: dbOrder.price ? Number(dbOrder.price) : undefined,
+    status: dbOrder.status as 'pending' | 'filled' | 'cancelled' | 'partial',
+    filled_quantity: Number(dbOrder.filled_quantity || 0),
+    average_fill_price: Number(dbOrder.average_fill_price || 0),
+    fees: Number(dbOrder.fees || 0),
+    created_at: dbOrder.created_at || '',
+    filled_at: dbOrder.filled_at || undefined,
+    cancelled_at: dbOrder.cancelled_at || undefined,
+  });
+
   useEffect(() => {
     if (!user) {
       setOrders([]);
@@ -40,7 +63,8 @@ export const useOrders = () => {
       try {
         setLoading(true);
         const data = await apiService.getUserOrders(user.id);
-        setOrders(data);
+        const convertedOrders = data.map(convertDatabaseOrder);
+        setOrders(convertedOrders);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch orders');
       } finally {
@@ -53,10 +77,12 @@ export const useOrders = () => {
     // Subscribe to order updates
     const subscription = apiService.subscribeToOrderUpdates(user.id, (payload) => {
       if (payload.eventType === 'INSERT') {
-        setOrders(prev => [payload.new, ...prev]);
+        const newOrder = convertDatabaseOrder(payload.new);
+        setOrders(prev => [newOrder, ...prev]);
       } else if (payload.eventType === 'UPDATE') {
+        const updatedOrder = convertDatabaseOrder(payload.new);
         setOrders(prev => prev.map(order => 
-          order.id === payload.new.id ? payload.new : order
+          order.id === updatedOrder.id ? updatedOrder : order
         ));
       }
     });
@@ -66,17 +92,27 @@ export const useOrders = () => {
     };
   }, [user]);
 
-  const createOrder = async (orderData: Omit<Order, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'filled_quantity' | 'average_fill_price' | 'fees'>) => {
+  const createOrder = async (orderData: Omit<Order, 'id' | 'created_at' | 'user_id' | 'filled_quantity' | 'average_fill_price' | 'fees' | 'filled_at' | 'cancelled_at'>) => {
     if (!user) throw new Error('User not authenticated');
 
     try {
-      const order = await apiService.createOrder({
-        ...orderData,
+      const dbOrderData: DatabaseOrderInsert = {
         user_id: user.id,
+        portfolio_id: orderData.portfolio_id,
+        symbol: orderData.symbol,
+        side: orderData.side,
+        type: orderData.type,
+        quantity: orderData.quantity,
+        price: orderData.price,
+        status: orderData.status,
         filled_quantity: 0,
         average_fill_price: 0,
-        fees: 0
-      });
+        fees: 0,
+        mode: 'paper',
+        exchange: 'internal',
+      };
+
+      const order = await apiService.createOrder(dbOrderData);
 
       toast({
         title: "Order Placed",
@@ -117,9 +153,11 @@ export const useOrders = () => {
     error,
     createOrder,
     cancelOrder,
-    refetch: () => {
+    refetch: async () => {
       if (user) {
-        apiService.getUserOrders(user.id).then(setOrders);
+        const data = await apiService.getUserOrders(user.id);
+        const convertedOrders = data.map(convertDatabaseOrder);
+        setOrders(convertedOrders);
       }
     }
   };

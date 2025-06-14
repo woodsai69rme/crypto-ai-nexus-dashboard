@@ -5,6 +5,7 @@ import type { Database } from '@/integrations/supabase/types';
 type Tables = Database['public']['Tables'];
 type Portfolio = Tables['portfolios']['Row'];
 type Order = Tables['orders']['Row'];
+type OrderInsert = Tables['orders']['Insert'];
 type TradingBot = Tables['trading_bots']['Row'];
 
 export class APIService {
@@ -37,7 +38,7 @@ export class APIService {
   }
 
   // Order methods
-  async createOrder(orderData: Omit<Order, 'id' | 'created_at' | 'updated_at'>) {
+  async createOrder(orderData: OrderInsert) {
     const { data, error } = await supabase
       .from('orders')
       .insert(orderData)

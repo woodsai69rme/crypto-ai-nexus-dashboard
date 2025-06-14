@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { apiService } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type DatabasePortfolio = Database['public']['Tables']['portfolios']['Row'];
 
 interface Portfolio {
   id: string;
@@ -26,6 +29,22 @@ export const usePortfolio = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Convert database portfolio to our local Portfolio type
+  const convertDatabasePortfolio = (dbPortfolio: DatabasePortfolio): Portfolio => ({
+    id: dbPortfolio.id,
+    user_id: dbPortfolio.user_id,
+    name: dbPortfolio.name,
+    mode: dbPortfolio.mode as 'paper' | 'live',
+    initial_balance: Number(dbPortfolio.initial_balance || 0),
+    current_balance: Number(dbPortfolio.current_balance || 0),
+    total_value: Number(dbPortfolio.total_value || 0),
+    total_pnl: Number(dbPortfolio.total_pnl || 0),
+    total_pnl_percentage: Number(dbPortfolio.total_pnl_percentage || 0),
+    positions: Array.isArray(dbPortfolio.positions) ? dbPortfolio.positions : [],
+    created_at: dbPortfolio.created_at || '',
+    updated_at: dbPortfolio.updated_at || '',
+  });
+
   useEffect(() => {
     if (!user) {
       setPortfolio(null);
@@ -37,7 +56,10 @@ export const usePortfolio = () => {
       try {
         setLoading(true);
         const data = await apiService.getUserPortfolio(user.id);
-        setPortfolio(data);
+        if (data) {
+          const convertedPortfolio = convertDatabasePortfolio(data);
+          setPortfolio(convertedPortfolio);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch portfolio');
         toast({
@@ -55,7 +77,8 @@ export const usePortfolio = () => {
     // Subscribe to portfolio updates
     const subscription = apiService.subscribeToPortfolioUpdates(user.id, (payload) => {
       if (payload.eventType === 'UPDATE' && payload.new) {
-        setPortfolio(payload.new);
+        const updatedPortfolio = convertDatabasePortfolio(payload.new);
+        setPortfolio(updatedPortfolio);
       }
     });
 
@@ -69,8 +92,9 @@ export const usePortfolio = () => {
 
     try {
       const updatedPortfolio = await apiService.updatePortfolio(portfolio.id, updates);
-      setPortfolio(updatedPortfolio);
-      return updatedPortfolio;
+      const convertedPortfolio = convertDatabasePortfolio(updatedPortfolio);
+      setPortfolio(convertedPortfolio);
+      return convertedPortfolio;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update portfolio');
       toast({
@@ -87,9 +111,13 @@ export const usePortfolio = () => {
     loading,
     error,
     updatePortfolio,
-    refetch: () => {
+    refetch: async () => {
       if (user) {
-        apiService.getUserPortfolio(user.id).then(setPortfolio);
+        const data = await apiService.getUserPortfolio(user.id);
+        if (data) {
+          const convertedPortfolio = convertDatabasePortfolio(data);
+          setPortfolio(convertedPortfolio);
+        }
       }
     }
   };
