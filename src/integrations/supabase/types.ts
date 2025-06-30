@@ -3088,7 +3088,12 @@ export type Database = {
         | "sentiment"
         | "breakout"
       order_status: "pending" | "filled" | "cancelled" | "rejected"
-      order_type: "market" | "limit" | "stop_loss" | "take_profit"
+      order_type:
+        | "market"
+        | "limit"
+        | "stop_loss"
+        | "take_profit"
+        | "stop_limit"
       strategy_type:
         | "trend_following"
         | "mean_reversion"
@@ -3233,7 +3238,7 @@ export const Constants = {
         "breakout",
       ],
       order_status: ["pending", "filled", "cancelled", "rejected"],
-      order_type: ["market", "limit", "stop_loss", "take_profit"],
+      order_type: ["market", "limit", "stop_loss", "take_profit", "stop_limit"],
       strategy_type: [
         "trend_following",
         "mean_reversion",

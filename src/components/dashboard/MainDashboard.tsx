@@ -9,9 +9,7 @@ import {
   Newspaper, 
   Wallet, 
   BarChart3, 
-  Bell,
   Activity,
-  DollarSign
 } from 'lucide-react';
 import { EnhancedTradingInterface } from '@/components/trading/EnhancedTradingInterface';
 import { BotManager } from '@/components/bots/BotManager';
@@ -29,7 +27,7 @@ export const MainDashboard = () => {
   const recentOrders = orders.slice(0, 5);
   const runningBots = 3; // This would come from bot status query
   const totalPnL = portfolio?.total_pnl || 0;
-  const totalValue = portfolio?.total_value || 0;
+  const totalValue = portfolio?.total_value || 100000;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-AU', {
