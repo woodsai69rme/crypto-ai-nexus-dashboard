@@ -1,61 +1,46 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import { SettingsProvider } from "@/contexts/SettingsContext";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
-import { AuthGuard } from "@/components/auth/AuthGuard";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import { AuthGuard } from '@/components/auth/AuthGuard';
+import { MainDashboard } from '@/components/dashboard/MainDashboard';
+import { Auth } from '@/pages/Auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      retry: 3,
-      refetchOnWindowFocus: false,
+      staleTime: 60 * 1000, // 1 minute
+      retry: 1,
     },
   },
 });
 
-const App = () => (
-  <ErrorBoundary>
+function App() {
+  return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <AuthProvider>
-          <SettingsProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route 
-                  path="/auth" 
-                  element={
-                    <AuthGuard requireAuth={false}>
-                      <Auth />
-                    </AuthGuard>
-                  } 
-                />
-                <Route 
-                  path="/" 
-                  element={
-                    <AuthGuard requireAuth={true}>
-                      <Index />
-                    </AuthGuard>
-                  } 
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-          </SettingsProvider>
-        </AuthProvider>
-      </TooltipProvider>
+      <Router>
+        <Routes>
+          <Route 
+            path="/auth" 
+            element={
+              <AuthGuard requireAuth={false}>
+                <Auth />
+              </AuthGuard>
+            } 
+          />
+          <Route 
+            path="/*" 
+            element={
+              <AuthGuard requireAuth={true}>
+                <MainDashboard />
+              </AuthGuard>
+            } 
+          />
+        </Routes>
+        <Toaster />
+      </Router>
     </QueryClientProvider>
-  </ErrorBoundary>
-);
+  );
+}
 
 export default App;
