@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,7 +49,30 @@ export const BotManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setBots(data || []);
+      
+      // Transform the data to match our TypeScript interface
+      const transformedBots: TradingBot[] = (data || []).map((bot) => ({
+        id: bot.id,
+        name: bot.name,
+        strategy: bot.strategy,
+        status: bot.status,
+        performance: typeof bot.performance === 'object' && bot.performance !== null 
+          ? bot.performance as any
+          : {
+              total_return: 0,
+              daily_pnl: 0,
+              weekly_pnl: 0,
+              monthly_pnl: 0,
+              win_rate: 0,
+              total_trades: 0
+            },
+        paper_balance: bot.paper_balance,
+        target_symbols: bot.target_symbols || [],
+        risk_level: bot.risk_level,
+        created_at: bot.created_at,
+      }));
+      
+      setBots(transformedBots);
     } catch (error) {
       console.error('Error fetching bots:', error);
       toast({

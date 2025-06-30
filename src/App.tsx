@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { MainDashboard } from '@/components/dashboard/MainDashboard';
-import { Auth } from '@/pages/Auth';
+import Auth from '@/pages/Auth';
 
 const queryClient = new QueryClient({
   defaultOptions: {
