@@ -55,13 +55,13 @@ export const useOrders = () => {
         id: trade.id,
         symbol: trade.symbol,
         side: trade.side,
-        type: trade.type || 'market',
+        type: 'market', // Default since type doesn't exist in paper_trades
         amount: trade.amount,
-        quantity: trade.quantity || trade.amount,
+        quantity: trade.amount, // Using amount as quantity since quantity doesn't exist
         price: trade.price,
         status: trade.status,
-        filled_quantity: trade.filled_quantity || 0,
-        filled_at: trade.filled_at,
+        filled_quantity: 0, // Default since filled_quantity doesn't exist
+        filled_at: null, // Default since filled_at doesn't exist
         created_at: trade.created_at,
       }));
       
@@ -79,14 +79,15 @@ export const useOrders = () => {
         .from('paper_trades')
         .insert([{
           user_id: user?.id,
-          portfolio_id: params.portfolio_id,
           symbol: params.symbol,
           side: params.side,
-          type: params.type,
           amount: params.quantity,
-          quantity: params.quantity,
-          price: params.price,
+          price: params.price || 0,
+          total_value: (params.price || 0) * params.quantity,
+          fee: 0,
           status: params.status,
+          bot_id: null,
+          reasoning: `${params.type} order placed manually`
         }])
         .select()
         .single();
